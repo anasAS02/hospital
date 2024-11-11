@@ -20,18 +20,6 @@ const Queue = () => {
   const [ticket, setTicket] = useState({ticketNumber: 'لا يوجد'});
   const [patientData, setPatientData] = useState(null);
 
-  const [testList, setTestList] = useState([]);
-
-  const fetchTestList = async () => {
-    try {
-      const res = await axios.get('http://127.0.0.1:8007/test-types');
-      const data = res.data.data;
-      setTestList(data);
-    }catch (err) {
-      console.log(err)
-    }
-  }
-
   const fetchMedications = async () => {
     try {
       const res = await axios.get('http://127.0.0.1:8007/medications');
@@ -109,27 +97,17 @@ const Queue = () => {
   useEffect(() => {
     handleGetTickets();
     fetchMedications(); 
-    fetchTestList();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    const formData = {
+      medications: medications.map(med => ({ _id: med._id, name: med.name, notes: med.notes })),
+      medicationNotes,
+      tests,
+    };
     try {
-      // console.log(medications)
-
-      // if (medications.length > 0) {
-      //   await axios.post(`http://127.0.0.1:8007/prescriptions`, medications);
-      // }
-  
-      // // Step 3: Post Test Orders
-      // if (tests.length > 0) {
-      //   await axios.post(`http://127.0.0.1:8007/test-orders`, { tests });
-      // }
-
-      // await axios.post('http://127.0.0.1:8007/patients/' + patientData._id, patientData);
-      // await axios.post('http://127.0.0.1:8007/test-orders/' + patientData._id, patientData);
-      // await axios.post('http://127.0.0.1:8007/prescriptions/' + patientData._id, patientData);
+      console.log(formData);
       handleNextPatient();
     } catch (error) {
       console.log(error);
@@ -245,11 +223,8 @@ const Queue = () => {
                     className="w-full p-2 border rounded"
                   >
                     <option value="">اختر نوع الفحص</option>
-                    {
-                      testList.map((test) => (
-                        <option key={test._id} value={test.name}>{test.name}</option>
-                      ))
-                    }
+                    <option value="اشعة">اشعة</option>
+                    <option value="تحليل">تحليل</option>
                   </select>
                   <input
                     type="text"

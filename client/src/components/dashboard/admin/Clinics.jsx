@@ -11,7 +11,6 @@ const Clinics = () => {
   const [clinicForm, setClinicForm] = useState({
     name: "",
     code: "",
-    doctors: [], // Array of doctor IDs
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editingClinicId, setEditingClinicId] = useState(null);
@@ -20,7 +19,7 @@ const Clinics = () => {
     try {
       const res = await axios.get("http://127.0.0.1:8007/users");
       const data = res.data.data;
-      setDoctors(data.filter((user) => user.role === "doctor"));
+      setDoctors(data.filter((user) => user.role === "doctor" || user.role === "laboratory-doctor"));
     } catch (err) {
       toast.error("فشل في تحميل الأطباء", {
         position: "top-right",
@@ -49,14 +48,6 @@ const Clinics = () => {
     setClinicForm((prevForm) => ({
       ...prevForm,
       [name]: value,
-    }));
-  };
-
-  const handleDoctorChange = (e) => {
-    const selectedDoctors = Array.from(e.target.selectedOptions, (option) => option.value);
-    setClinicForm((prevForm) => ({
-      ...prevForm,
-      doctors: selectedDoctors,
     }));
   };
 
@@ -101,10 +92,13 @@ const Clinics = () => {
     setClinicForm({
       name: clinic.name,
       code: clinic.code,
-      doctors: clinic.doctors.map((doctor) => doctor._id),
     });
     setIsEditing(true);
     setEditingClinicId(clinic._id);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   const handleRemoveClinic = async (id) => {
@@ -126,6 +120,7 @@ const Clinics = () => {
   useEffect(() => {
     fetchClinics();
     fetchDoctors();
+    console.log(clinics)
   }, []);
 
   return (
@@ -164,26 +159,6 @@ const Clinics = () => {
             />
           </div>
 
-          <div>
-            <label htmlFor="doctors" className="block text-sm font-medium text-gray-600 mb-1">
-              الأطباء
-            </label>
-            <select
-              id="doctors"
-              name="doctors"
-              multiple
-              value={clinicForm.doctors}
-              onChange={handleDoctorChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            >
-              {doctors.map((doctor) => (
-                <option key={doctor._id} value={doctor._id}>
-                  {doctor.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
           <button
             type="submit"
             className="w-full bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold py-2 rounded-lg shadow-lg hover:from-green-500 hover:to-blue-600 hover:shadow-2xl transition duration-300 ease-in-out"
@@ -208,7 +183,7 @@ const Clinics = () => {
             <tr key={clinic._id} className="border-t">
               <td className="px-4 py-2 text-center">{clinic.name}</td>
               <td className="px-4 py-2 text-center">{clinic.code}</td>
-              <td className="px-4 py-2 text-center">{clinic.doctors.length}</td>
+              <td className="px-4 py-2 text-center">{doctors.filter((doctor) => doctor.clinicId === clinic._id).length}</td>
               <td className="px-4 py-2 text-center">
                 <FontAwesomeIcon
                   icon={faEdit}

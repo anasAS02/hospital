@@ -17,6 +17,7 @@ const Home = () => {
   const [patient, setPatient] = useState({
     name: "",
     age: "",
+    national_id: "",
     phone: "",
     address: "",
     gender: "male",
@@ -87,14 +88,21 @@ const Home = () => {
       setPatient({
         name: "",
         age: "",
+        national_id: "",
         phone: "",
         address: "",
         gender: "male",
         medicalCondition: "",
         clinicId: clinics?.[0]?._id || "",
       });
+      fetchClinics();
+      fetchTickets();
     }catch (err) {
       console.log(err)
+      toast.error((err.response.data.message === 'يجب أن يكون رقم الهوية 10 أرقام') ? err.response.data.message : 'فشل في حجز الكشف', {
+        position: "top-right",
+        autoClose: 2000,
+      });
     }finally {
       setIsLoading(false);
     }
@@ -155,6 +163,7 @@ const Home = () => {
                     <p><span className="font-semibold">الاسم:</span> {ticketData.patient.name}</p>
                     <p><span className="font-semibold">رقم التذكرة:</span> {ticketData.ticketCode} #</p>
                     <p><span className="font-semibold">العمر:</span> {ticketData.patient.age}</p>
+                    <p><span className="font-semibold">رقم الهوية:</span> {ticketData.patient.national_id}</p>
                     <p><span className="font-semibold">الجنس:</span> {ticketData.patient.gender === 'male' ? 'ذكر' : 'أنثى'}</p>
                     <p><span className="font-semibold">الدور:</span> {ticketData.patient.queueNumber}</p>
                   </div>
@@ -184,6 +193,24 @@ const Home = () => {
                   type="number"
                   placeholder="أدخل العمر"
                   value={patient.age}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="national_id"
+                  className="block text-sm font-medium text-gray-600 mb-1"
+                >
+                  رقم الهوية
+                </label>
+                <input
+                  id="national_id"
+                  name="national_id"
+                  type="text"
+                  placeholder="أدخل رقم الهوية"
+                  value={patient.national_id}
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"

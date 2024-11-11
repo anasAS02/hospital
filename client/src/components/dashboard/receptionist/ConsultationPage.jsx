@@ -26,6 +26,7 @@ function ConsultationPage() {
   const [patientData, setPatientData] = useState({
     name: "",
     age: "",
+    national_id: "",
     phone: "",
     address: "",
     gender: "",
@@ -52,6 +53,7 @@ function ConsultationPage() {
       setPatientData({
         name: "",
         age: "",
+        national_id: "",
         phone: "",
         address: "",
         gender: "male",
@@ -105,6 +107,24 @@ function ConsultationPage() {
             type="number"
             placeholder="أدخل العمر"
             value={patientData.age}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="national_id"
+            className="block text-sm font-medium text-gray-600 mb-1"
+          >
+            رقم الهوية
+          </label>
+          <input
+            id="national_id"
+            name="national_id"
+            type="text"
+            placeholder="أدخل رقم الهوية"
+            value={patientData.national_id}
             onChange={handleChange}
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"

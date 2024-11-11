@@ -17,7 +17,6 @@ const Patients = () => {
           <tr>
             <th className="px-4 py-2 text-center bg-blue-500 text-white rounded-r-md">الاسم</th>
             <th className="px-4 py-2 text-center bg-blue-500 text-white">العمر</th>
-            <th className="px-4 py-2 text-center bg-blue-500 text-white">رقم الهوية</th>
             <th className="px-4 py-2 text-center bg-blue-500 text-white">رقم الهاتف</th>
             <th className="px-4 py-2 text-center bg-blue-500 text-white">تاريخ الكشف</th>
             <th className="px-4 py-2 text-center bg-blue-500 text-white">الشكوى</th>
@@ -29,7 +28,6 @@ const Patients = () => {
             <tr key={patient._id} className="border-t">
               <td className="px-4 py-2 text-center">{patient.name}</td>
               <td className="px-4 py-2 text-center">{patient.age}</td>
-              <td className="px-4 py-2 text-center">{patient.national_id}</td>
               <td className="px-4 py-2 text-center">{patient.phone}</td>
               <td className="px-4 py-2 text-center">{new Date(patient.updatedAt).toISOString().split("T")[0]}</td>
               <td className="px-4 py-2 text-center">{patient.medicalCondition}</td>

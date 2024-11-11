@@ -7,9 +7,9 @@ import {
   faHome,
   faTicket,
 } from "@fortawesome/free-solid-svg-icons";
-// import MainPage from './MainPage';
-// import Patients from "./Patients";
-// import Queue from "./Queue";
+import MainPage from './MainPage';
+import Patients from "./Patients";
+import Queue from "./Queue";
 
 const LaboratoryDoctorDashboard = () => {
   const [activeTab, setActiveTab] = useState({
@@ -29,8 +29,9 @@ const LaboratoryDoctorDashboard = () => {
   };
 
   const tabs = [
-    // { name: "الفحوصات", label: "الفحوصات", icon: faHome, comp: <MainPage /> },
-    // { name: "سجل الفحوصات", label: "سجل الفحوصات", icon: faUsers, comp: <Patients /> },
+    { name: "الرئيسية", label: "الرئيسية", icon: faHome, comp: <MainPage /> },
+    { name: "سجل المرضى", label: "سجل المرضى", icon: faUsers, comp: <Patients /> },
+    { name: "الحجوزات", label: "الحجوزات", icon: faTicket, comp: <Queue /> }
   ];
 
   return (
@@ -79,3 +80,4 @@ const LaboratoryDoctorDashboard = () => {
 };
 
 export default LaboratoryDoctorDashboard;
+

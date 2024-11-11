@@ -5,6 +5,7 @@ import "./index.css";
 import { Provider } from "react-redux";
 import store from "./store/index.js";
 import "react-toastify/dist/ReactToastify.css";
+import Navbar from "./components/Navbar.jsx";
 
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>

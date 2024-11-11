@@ -1,16 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { addUSer } from "../../../store/reducers/usersSlice";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 function AddEmployee() {
   const dispatch = useDispatch();
+
+  const [clinics, setClinics] = useState([]);
+
+  const fetchClinics = async () => {
+    try {
+      const res = await axios.get('http://127.0.0.1:8007/clinics');
+      const data = res.data.data;
+      setClinics(data);
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const [employeeData, setEmployeeData] = useState({
     name: "",
     role: "",
     email: "",
     password: "",
+    clinicId: ""
   });
 
   const handleChange = (e) => {
@@ -19,6 +33,25 @@ function AddEmployee() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const filterClinic = clinics.filter((clinic) => clinic._id === employeeData.clinicId);
+
+    if(employeeData.role === "laboratory-doctor" && filterClinic[0].name !== "الأشعة و التحاليل") {
+      toast.error("طبيب المعمل غير مصرح له بهذا التخصص", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      return;
+    }
+    
+    if(employeeData.role === "doctor" && filterClinic[0].name === "الأشعة و التحاليل") {
+      toast.error("هذا المستخدم المعمل غير مصرح له بهذا التخصص", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      return;
+    }
+
     try {
       await dispatch(addUSer(employeeData)).unwrap();
       toast.success("تم إضافة المستخدم بنجاح", {
@@ -30,6 +63,7 @@ function AddEmployee() {
         role: "",
         email: "",
         password: "",
+        clinicId: ""
       });
     } catch (error) {
       console.log(error)
@@ -39,6 +73,10 @@ function AddEmployee() {
       });
     }
   };
+
+  useEffect(() => {
+    fetchClinics();
+  }, [])
 
   return (
     <div className="p-6 w-full mx-auto flex flex-col justify-center items-center gap-6">
@@ -108,6 +146,30 @@ function AddEmployee() {
             <option value="admin">مسؤول</option>
           </select>
         </div>
+        {
+          (employeeData.role === "doctor" || employeeData.role === "laboratory-doctor") && (
+            <div>
+              <label htmlFor="clinicId" className="block text-sm font-medium text-gray-600 mb-1">
+                التخصصات
+              </label>
+              <select
+                id="clinicId"
+                name="clinicId"
+                value={employeeData.clinicId}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              >
+                <option value="">اختر التخصص</option>
+                {
+                  clinics.map((clinic) => (
+                    <option key={clinic._id} value={clinic._id}>{clinic.name}</option>
+                  ))
+                }
+              </select>
+            </div>
+          )
+        }
         <button
           type="submit"
           className="w-full bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold py-2 rounded-lg shadow-lg hover:from-green-500 hover:to-blue-600 hover:shadow-2xl transition duration-300 ease-in-out"

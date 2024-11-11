@@ -8,6 +8,7 @@ const AddPatientAppointment = ({ show, handleClose }) => {
   const [patientData, setPatientData] = useState({
     name: "",
     age: "",
+    national_id: "",
     gender: "",
     phone: "",
     address: "",
@@ -34,6 +35,7 @@ const AddPatientAppointment = ({ show, handleClose }) => {
       setPatientData({
         name: "",
         age: "",
+        national_id: "",
         gender: "male",
         phone: "",
         address: "",
