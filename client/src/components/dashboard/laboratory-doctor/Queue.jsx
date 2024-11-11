@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from "../../../api/baseUrl";
+import api, { BASE_URL } from "../../../api/baseUrl";
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -22,7 +22,7 @@ const Queue = () => {
 
   const fetchMedications = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8007/medications');
+      const res = await axios.get(`${BASE_URL}/medications`);
       setMedicationsList(res.data.data); 
     } catch (err) {
       console.log(err);
@@ -73,7 +73,7 @@ const Queue = () => {
 
   const handleGetTickets = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8007/tickets');
+      const res = await axios.get(`${BASE_URL}/tickets`);
       setTickets(res.data.tickets.filter(ticket => ticket.status === 'waiting').length);
     } catch (err) {
       console.log(err);
@@ -82,7 +82,7 @@ const Queue = () => {
 
   const handleNextPatient = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8007/tickets/next');
+      const res = await axios.get(`${BASE_URL}/tickets/next`);
       setPatientData(res.data.patientData);
       setTicket(res.data.data);
     } catch (err) {

@@ -17,7 +17,7 @@ const Clinics = () => {
 
   const fetchDoctors = async () => {
     try {
-      const res = await axios.get("http://127.0.0.1:8007/users");
+      const res = await axios.get("https://hospital-psi-two.vercel.app/users");
       const data = res.data.data;
       setDoctors(data.filter((user) => user.role === "doctor" || user.role === "laboratory-doctor"));
     } catch (err) {
@@ -31,7 +31,7 @@ const Clinics = () => {
 
   const fetchClinics = async () => {
     try {
-      const res = await axios.get("http://127.0.0.1:8007/clinics");
+      const res = await axios.get("https://hospital-psi-two.vercel.app/clinics");
       const data = res.data.data;
       setClinics(data);
     } catch (err) {
@@ -55,7 +55,7 @@ const Clinics = () => {
     e.preventDefault();
     if (isEditing) {
       try {
-        await axios.put(`http://127.0.0.1:8007/clinics/${editingClinicId}`, clinicForm);
+        await axios.put(`https://hospital-psi-two.vercel.app/${editingClinicId}`, clinicForm);
         setIsEditing(false);
         setEditingClinicId(null);
         setClinicForm({ name: "", code: "", doctors: [] });
@@ -72,7 +72,7 @@ const Clinics = () => {
       }
     } else {
       try {
-        await axios.post("http://127.0.0.1:8007/clinics/add-clinic", clinicForm);
+        await axios.post("https://hospital-psi-two.vercel.app/clinics/add-clinic", clinicForm);
         setClinicForm({ name: "", code: "", doctors: [] });
         fetchClinics();
         toast.success("تم إضافة العيادة بنجاح", {
@@ -103,7 +103,7 @@ const Clinics = () => {
 
   const handleRemoveClinic = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:8007/clinics/${id}`);
+      await axios.delete(`https://hospital-psi-two.vercel.app/clinics/${id}`);
       fetchClinics();
       toast.success("تم حذف العيادة بنجاح", {
         position: "top-right",

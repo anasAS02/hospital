@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useStatus } from "../StatusContext";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { BASE_URL } from "../api/baseUrl";
 
 const LoginPage = () => {
   const { isLoading, setIsLoading, setIsLoggedIn, setUserData } = useStatus();
@@ -26,7 +27,7 @@ const LoginPage = () => {
     };
     setIsLoading(true);
     try {
-      const response = await axios.post('http://127.0.0.1:8007/auth/login/', userData)
+      const response = await axios.post(`${BASE_URL}/auth/login/`, userData)
       toast.success("تم تسجيل الدخول بنجاح", {
         position: "top-right",
         autoClose: 2000,

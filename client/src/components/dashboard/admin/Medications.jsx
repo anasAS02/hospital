@@ -18,7 +18,7 @@ const Medications = () => {
 
   const fetchMedications = async () => {
     try {
-      const res = await axios.get("http://127.0.0.1:8007/medications");
+      const res = await axios.get("https://hospital-psi-two.vercel.app/medications");
       const data = res.data.data;
       setMedications(data);
     } catch (err) {
@@ -44,7 +44,7 @@ const Medications = () => {
     e.preventDefault();
     if (isEditing) {
       try {
-        await axios.put(`http://127.0.0.1:8007/medications/${editingMedicationId}`, medicationForm);
+        await axios.put(`https://hospital-psi-two.vercel.app/medications/${editingMedicationId}`, medicationForm);
         setIsEditing(false);
         setEditingMedicationId(null);
         setMedicationForm({ name: "", description: "", price: "" });
@@ -61,7 +61,7 @@ const Medications = () => {
       }
     } else {
       try {
-        await axios.post("http://127.0.0.1:8007/medications", medicationForm);
+        await axios.post("https://hospital-psi-two.vercel.app/medications", medicationForm);
         setMedicationForm({ name: "", description: "", price: "" });
         fetchMedications();
         toast.success("تم إضافة بيانات العلاج بنجاح", {
@@ -89,7 +89,7 @@ const Medications = () => {
 
   const handleRemoveMedication = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:8007/medications/${id}`);
+      await axios.delete(`https://hospital-psi-two.vercel.app/medications/${id}`);
       fetchMedications();
       toast.success("تم حذف بيانات العلاج بنجاح", {
         position: "top-right",

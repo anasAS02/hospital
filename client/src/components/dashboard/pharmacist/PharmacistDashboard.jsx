@@ -3,13 +3,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
+import { BASE_URL } from '../../../api/baseUrl';
 
 const PharmacistDashboard = () => {
   const [prescriptions, setPrescriptions] = useState([]);
 
   const fetchPrescriptions = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8007/prescriptions/');
+      const res = await axios.get(`${BASE_URL}/prescriptions/`);
       const data = res.data.data;
       setPrescriptions(data);
     } catch (error) {
@@ -36,7 +37,7 @@ const PharmacistDashboard = () => {
     console.log('data', data._id)
 
     try {
-      await axios.put(`http://127.0.0.1:8007/prescriptions/${data._id}/`, data);
+      await axios.put(`${BASE_URL}/prescriptions/${data._id}/`, data);
       toast.success('تم دفع الفاتورة بنجاح', {
         position: "top-right",
         autoClose: 2000,
@@ -53,7 +54,7 @@ const PharmacistDashboard = () => {
 
   const handleRemove = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:8007/prescriptions/${id}/`);
+      await axios.delete(`${BASE_URL}/prescriptions/${id}/`);
       toast.success('تم دفع الفاتورة بنجاح', {
         position: "top-right",
         autoClose: 2000,

@@ -17,7 +17,7 @@ const Tests = () => {
 
   const fetchTestTypes = async () => {
     try {
-      const res = await axios.get("http://127.0.0.1:8007/test-types");
+      const res = await axios.get("https://hospital-psi-two.vercel.app/test-types");
       const data = res.data.data;
       setTestTypes(data);
     } catch (err) {
@@ -43,7 +43,7 @@ const Tests = () => {
     e.preventDefault();
     if (isEditing) {
       try {
-        await axios.put(`http://127.0.0.1:8007/test-types/${editingTestId}`, testForm);
+        await axios.put(`https://hospital-psi-two.vercel.app/test-types/${editingTestId}`, testForm);
         setIsEditing(false);
         setEditingTestId(null);
         setTestForm({ name: "", price: "" });
@@ -60,7 +60,7 @@ const Tests = () => {
       }
     } else {
       try {
-        await axios.post("http://127.0.0.1:8007/test-types", testForm);
+        await axios.post("https://hospital-psi-two.vercel.app/test-types", testForm);
         setTestForm({ name: "", price: "" });
         fetchTestTypes();
         toast.success("تم إضافة بيانات الفحص بنجاح", {
@@ -87,7 +87,7 @@ const Tests = () => {
 
   const handleRemoveTestType = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:8007/test-types/${id}`);
+      await axios.delete(`https://hospital-psi-two.vercel.app/test-types/${id}`);
       fetchTestTypes();
       toast.success("تم حذف بيانات الفحص بنجاح", {
         position: "top-right",

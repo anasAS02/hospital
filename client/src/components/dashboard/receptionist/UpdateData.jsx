@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { BASE_URL } from "../../../api/baseUrl";
 
 function UpdateData() {
   const [isEditingMode, setIsEditingMode] = useState(false);
@@ -30,7 +31,7 @@ function UpdateData() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://127.0.0.1:8007/patients/${patientData._id}`, patientData);
+      await axios.put(`${BASE_URL}/patients/${patientData._id}`, patientData);
       toast.success("تم تحديث المريض بنجاح", {
         position: "top-right",
         autoClose: 2000,
@@ -82,7 +83,7 @@ function UpdateData() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:8007/patients/${id}`);
+      await axios.delete(`${BASE_URL}/patients/${id}`);
       toast.success("تم حذف المريض بنجاح", {
         position: "top-right",
         autoClose: 2000,

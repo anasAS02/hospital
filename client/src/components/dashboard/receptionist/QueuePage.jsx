@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { addPatient, getPatients } from "../../../store/reducers/patientSlice";
 import axios from "axios";
 import { toast } from "react-toastify";  
+import { BASE_URL } from "../../../api/baseUrl";
 
 function QueuePage() {
   const dispatch = useDispatch();
@@ -10,7 +11,7 @@ function QueuePage() {
 
   const fetchClinics = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8007/clinics');
+      const res = await axios.get(`${BASE_URL}/clinics`);
       const data = res.data.data;
       setClinics(data);
     } catch (err) {

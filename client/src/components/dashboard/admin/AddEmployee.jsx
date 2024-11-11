@@ -11,7 +11,7 @@ function AddEmployee() {
 
   const fetchClinics = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8007/clinics');
+      const res = await axios.get('https://hospital-psi-two.vercel.app/clinics');
       const data = res.data.data;
       setClinics(data);
     } catch (error) {

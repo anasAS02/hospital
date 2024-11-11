@@ -6,6 +6,7 @@ import Cookies from 'js-cookie';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
+import { BASE_URL } from '../api/baseUrl';
 
 const Home = () => {
   const { isLoggedIn, setIsLoggedIn, isLoading, setIsLoading } = useStatus();
@@ -28,7 +29,7 @@ const Home = () => {
   const fetchTickets = async () => {
     setIsLoading(true);
     try {
-      const res = await axios.get("http://127.0.0.1:8007/tickets");
+      const res = await axios.get(`${BASE_URL}/tickets`);
       setTickets(res.data.tickets);
     } catch (err) {
       console.log(err);
@@ -40,7 +41,7 @@ const Home = () => {
   const handleGetTicketInfo = async () => {
     setIsLoading(true)
     try {
-      const res = await axios.post('http://127.0.0.1:8007/tickets', { number: ticketNumber });
+      const res = await axios.post(`${BASE_URL}/tickets`, { number: ticketNumber });
       console.log("DATA", res.data.data.ticket)
       setTicketData(res.data.data.ticket);
       toast.success("تم جلب البيانات بنجاح", {
@@ -60,7 +61,7 @@ const Home = () => {
   const fetchClinics = async () => {
     setIsLoading(true)
     try {
-      const res = await axios.get("http://127.0.0.1:8007/clinics");
+      const res = await axios.get(`${BASE_URL}/clinics`);
       setClinics(res.data.data);
     } catch (err) {
       console.log(err);
@@ -79,7 +80,7 @@ const Home = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://127.0.0.1:8007/patients/", patient);
+      await axios.post(`${BASE_URL}/patients/`, patient);
       toast.success("تم حجز الكشف بنجاح", {
         position: "top-right",
         autoClose: 2000,

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { BASE_URL } from "../../../api/baseUrl";
 
 const MainPage = () => {
     const [patients, setPatients] = useState([]);
     
     const fetchTickets = async () => {
         try {
-            const res = await axios.get('http://127.0.0.1:8007/patients');
+            const res = await axios.get(`${BASE_URL}/patients`);
             const data = res.data.data;
             setPatients(data.filter((patient) => patient.status === 'waiting'))
         }catch(err) {

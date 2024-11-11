@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { BASE_URL } from "../../../api/baseUrl";
 
 const InquiriesPage = () => {
   const [ticketNumber, setTicketNumber] = useState("");
@@ -10,7 +11,7 @@ const InquiriesPage = () => {
 
   const handleGetTicketInfo = async () => {
     try {
-      const res = await axios.post('http://127.0.0.1:8007/tickets', {number: ticketNumber});
+      const res = await axios.post(`${BASE_URL}/tickets`, {number: ticketNumber});
       console.log(res.data)
       setPatientData(res.data.data.patientData);
       setTicketCode(res.data.data.ticket[0].ticketCode);

@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { addPatient } from "../../../store/reducers/patientSlice";
 import { toast } from "react-toastify";  
 import axios from "axios";
+import { BASE_URL } from "../../../api/baseUrl";
 
 function ConsultationPage() {
   const dispatch = useDispatch();
@@ -11,7 +12,7 @@ function ConsultationPage() {
 
   const fetchClinics = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8007/clinics');
+      const res = await axios.get(`${BASE_URL}/clinics`);
       const data = res.data.data;
       setClinics(data);
     } catch (err) {
