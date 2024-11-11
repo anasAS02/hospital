@@ -8,6 +8,10 @@ import ApiError from "../../utils/apiError.js";
 export const addPatient = asyncHandler(async (req, res, next) => {
   const { name, age, gender, phone, address, medicalCondition, national_id, clinicId } = req.body;
 
+  if(national_id.length!== 10) {
+    return next(new ApiError("يجب أن يكون رقم الهوية 10 أرقام", 422));
+  }
+
   // Find the clinic
   const clinic = await Clinic.findById(clinicId);
   if (!clinic) {

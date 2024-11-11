@@ -5,18 +5,10 @@ import { asyncHandler } from "../../middlewares/errorHandller.middleware.js";
 
 // Add a new clinic
 export const addClinic = asyncHandler(async (req, res, next) => {
-  const { name, doctors, code } = req.body;
-  // Validate doctor IDs
-  const validDoctors = await User.find({
-    _id: { $in: doctors },
-    role: "doctor",
-  });
+  const { name, code } = req.body;
 
-  if (validDoctors.length !== doctors.length) {
-    return next(new ApiError("Invalid doctor IDs provided", 400));
-  }
 
-  const clinic = await Clinic.create({ name, doctors, code });
+  const clinic = await Clinic.create({ name, code });
 
   res.status(201).json({
     status: "success",
@@ -27,30 +19,20 @@ export const addClinic = asyncHandler(async (req, res, next) => {
 
 // Get all clinics
 export const getAllClinics = asyncHandler(async (req, res) => {
-  const clinics = await Clinic.find().populate("doctors", "name email role");
+  const clinics = await Clinic.find();
   res.status(200).json({ status: "success", data: clinics });
 });
 
 // Update a clinic
 export const updateClinic = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const { name, doctors, code } = req.body;
-
-  // Validate doctor IDs
-  const validDoctors = await User.find({
-    _id: { $in: doctors },
-    role: "doctor",
-  });
-
-  if (validDoctors.length !== doctors.length) {
-    return next(new ApiError("Invalid doctor IDs provided", 400));
-  }
+  const { name, code } = req.body;
 
   const clinic = await Clinic.findByIdAndUpdate(
     id,
-    { name, doctors, code },
+    { name, code },
     { new: true }
-  ).populate("doctors", "name email role");
+  );
 
   if (!clinic) {
     return next(new ApiError("Clinic not found", 404));

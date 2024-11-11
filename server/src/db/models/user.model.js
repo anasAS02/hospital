@@ -20,6 +20,13 @@ const userSchema = new Schema({
     enum: ["receptionist", "doctor", "laboratory-doctor", "pharmacist", "admin"],
     default: "receptionist",
   },
+  clinicId: {
+    type: Schema.Types.ObjectId,
+    ref: "Clinic",
+    required: function() {
+      return this.role === 'doctor' || this.role === 'laboratory-doctor';
+    }
+  }
 });
 
 userSchema.pre("save", async function (next) {

@@ -11,12 +11,6 @@ const clinicSchema = new Schema({
     required: true,
     unique: true,
   },
-  doctors: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
-  ],
 });
 
 const Clinic = model("Clinic", clinicSchema);

@@ -60,12 +60,12 @@ export const getAllPrescriptions = asyncHandler(async (req, res, next) => {
     });
   });
   
-export const getPrescription = asyncHandler(async (req, res, next) => {
-    const { patient_id } = req.params;
+  export const getPrescription = asyncHandler(async (req, res, next) => {
+    const { prescription_id } = req.params;
   
-    const prescription = await Pharmacy.findOne({ patient_id })
+    const prescription = await Pharmacy.findById(prescription_id)
       .populate("patient_id", "name")
-      .populate("medications", "name price"); 
+      .populate("medications", "name price");
     if (!prescription) {
       return next(new ApiError("Prescription not found", 404));
     }
@@ -76,17 +76,11 @@ export const getPrescription = asyncHandler(async (req, res, next) => {
     });
   });
   
-
-export const updatePrescription = asyncHandler(async (req, res, next) => {
-    const { patient_id } = req.params;
-    const {
-      medications,
-      pickup_status,
-      notes,
-      payment_status,
-    } = req.body;
+  export const updatePrescription = asyncHandler(async (req, res, next) => {
+    const { prescription_id } = req.params;
+    const { medications, pickup_status, notes, payment_status } = req.body;
   
-    const prescription = await Pharmacy.findOne({ patient_id });
+    const prescription = await Pharmacy.findById(prescription_id);
     if (!prescription) {
       return next(new ApiError("Prescription not found", 404));
     }
@@ -118,11 +112,10 @@ export const updatePrescription = asyncHandler(async (req, res, next) => {
     });
   });
   
-
-export const deletePrescription = asyncHandler(async (req, res, next) => {
-    const { patient_id } = req.params;
+  export const deletePrescription = asyncHandler(async (req, res, next) => {
+    const { prescription_id } = req.params;
   
-    const prescription = await Pharmacy.findOneAndDelete({ patient_id });
+    const prescription = await Pharmacy.findByIdAndDelete(prescription_id);
     if (!prescription) {
       return next(new ApiError("Prescription not found", 404));
     }

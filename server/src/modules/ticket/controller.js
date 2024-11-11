@@ -13,7 +13,7 @@ export const getTickets = asyncHandler(async (req, res, next) => {
 export const getTicket = asyncHandler(async (req, res, next) => {
   const { number } = req.body;
 
-  const ticket = await Ticket.where("ticketNumber", number).populate("patient", "name age gender queueNumber");
+  const ticket = await Ticket.where("ticketNumber", number).populate("patient", "name national_id age gender queueNumber");
   if (!ticket || ticket.length === 0) {
     return next(new ApiError("Ticket not found", 404));
   }
@@ -30,7 +30,6 @@ export const updateTicketStatus = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
   const { status } = req.body;
-  console.log(status);
   const ticket = await Ticket.findByIdAndUpdate(id, { status }, { new: true });
   if (!ticket) {
     return next(new ApiError("Ticket not found", 404));

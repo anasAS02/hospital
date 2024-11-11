@@ -8,16 +8,20 @@ import { asyncHandler } from "../../middlewares/errorHandller.middleware.js";
 export const addUser = asyncHandler(async (req, res, next) => {
   const { email, password, role, name, clinicId } = req.body;
 
+  if ((role === "doctor" || role === "laboratory-doctor") && !clinicId) {
+    return res.status(400).json({
+      status: "fail",
+      message: "Clinic ID is required for doctors and laboratory doctors",
+    });
+  }
+
   const userData = {
     email,
     password,
     role,
     name,
+    clinicId: (role === "doctor" || role === "laboratory-doctor") ? clinicId : undefined,
   };
-
-  if (role === "doctor" || role === "laboratory-doctor") {
-    userData.clinicId = clinicId;
-  }
 
   const user = await User.create(userData);
 
