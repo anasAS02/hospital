@@ -4,6 +4,7 @@ import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { toast } from "react-toastify"; 
 import 'react-toastify/dist/ReactToastify.css'; 
+import { BASE_URL } from "../../../api/baseUrl";
 
 const Medications = () => {
   const [medications, setMedications] = useState([]);
@@ -18,7 +19,7 @@ const Medications = () => {
 
   const fetchMedications = async () => {
     try {
-      const res = await axios.get("https://hospital-psi-two.vercel.app/medications");
+      const res = await axios.get(`${BASE_URL}/medications`);
       const data = res.data.data;
       setMedications(data);
     } catch (err) {
@@ -44,7 +45,7 @@ const Medications = () => {
     e.preventDefault();
     if (isEditing) {
       try {
-        await axios.put(`https://hospital-psi-two.vercel.app/medications/${editingMedicationId}`, medicationForm);
+        await axios.put(`${BASE_URL}/medications/${editingMedicationId}`, medicationForm);
         setIsEditing(false);
         setEditingMedicationId(null);
         setMedicationForm({ name: "", description: "", price: "" });
@@ -61,7 +62,7 @@ const Medications = () => {
       }
     } else {
       try {
-        await axios.post("https://hospital-psi-two.vercel.app/medications", medicationForm);
+        await axios.post(`${BASE_URL}/medications`, medicationForm);
         setMedicationForm({ name: "", description: "", price: "" });
         fetchMedications();
         toast.success("تم إضافة بيانات العلاج بنجاح", {
@@ -89,7 +90,7 @@ const Medications = () => {
 
   const handleRemoveMedication = async (id) => {
     try {
-      await axios.delete(`https://hospital-psi-two.vercel.app/medications/${id}`);
+      await axios.delete(`${BASE_URL}/medications/${id}`);
       fetchMedications();
       toast.success("تم حذف بيانات العلاج بنجاح", {
         position: "top-right",

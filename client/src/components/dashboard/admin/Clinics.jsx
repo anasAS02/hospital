@@ -4,6 +4,7 @@ import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { toast } from "react-toastify"; 
 import 'react-toastify/dist/ReactToastify.css'; 
+import { BASE_URL } from "../../../api/baseUrl";
 
 const Clinics = () => {
   const [clinics, setClinics] = useState([]);
@@ -17,7 +18,7 @@ const Clinics = () => {
 
   const fetchDoctors = async () => {
     try {
-      const res = await axios.get("https://hospital-psi-two.vercel.app/users");
+      const res = await axios.get(`${BASE_URL}/users`);
       const data = res.data.data;
       setDoctors(data.filter((user) => user.role === "doctor" || user.role === "laboratory-doctor"));
     } catch (err) {
@@ -31,7 +32,7 @@ const Clinics = () => {
 
   const fetchClinics = async () => {
     try {
-      const res = await axios.get("https://hospital-psi-two.vercel.app/clinics");
+      const res = await axios.get(`${BASE_URL}/clinics`);
       const data = res.data.data;
       setClinics(data);
     } catch (err) {
@@ -55,7 +56,7 @@ const Clinics = () => {
     e.preventDefault();
     if (isEditing) {
       try {
-        await axios.put(`https://hospital-psi-two.vercel.app/${editingClinicId}`, clinicForm);
+        await axios.put(`${BASE_URL}/${editingClinicId}`, clinicForm);
         setIsEditing(false);
         setEditingClinicId(null);
         setClinicForm({ name: "", code: "", doctors: [] });
@@ -72,7 +73,7 @@ const Clinics = () => {
       }
     } else {
       try {
-        await axios.post("https://hospital-psi-two.vercel.app/clinics/add-clinic", clinicForm);
+        await axios.post("${BASE_URL}/clinics/add-clinic", clinicForm);
         setClinicForm({ name: "", code: "", doctors: [] });
         fetchClinics();
         toast.success("تم إضافة العيادة بنجاح", {
@@ -103,7 +104,7 @@ const Clinics = () => {
 
   const handleRemoveClinic = async (id) => {
     try {
-      await axios.delete(`https://hospital-psi-two.vercel.app/clinics/${id}`);
+      await axios.delete(`${BASE_URL}/clinics/${id}`);
       fetchClinics();
       toast.success("تم حذف العيادة بنجاح", {
         position: "top-right",

@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { addUSer } from "../../../store/reducers/usersSlice";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { BASE_URL } from "../../../api/baseUrl";
 
 function AddEmployee() {
   const dispatch = useDispatch();
@@ -11,7 +12,7 @@ function AddEmployee() {
 
   const fetchClinics = async () => {
     try {
-      const res = await axios.get('https://hospital-psi-two.vercel.app/clinics');
+      const res = await axios.get(`${BASE_URL}/clinics`);
       const data = res.data.data;
       setClinics(data);
     } catch (error) {

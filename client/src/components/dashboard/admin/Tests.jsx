@@ -4,6 +4,7 @@ import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { toast } from "react-toastify"; 
 import 'react-toastify/dist/ReactToastify.css'; 
+import { BASE_URL } from "../../../api/baseUrl";
 
 const Tests = () => {
   const [testTypes, setTestTypes] = useState([]);
@@ -17,7 +18,7 @@ const Tests = () => {
 
   const fetchTestTypes = async () => {
     try {
-      const res = await axios.get("https://hospital-psi-two.vercel.app/test-types");
+      const res = await axios.get(`${BASE_URL}/test-types`);
       const data = res.data.data;
       setTestTypes(data);
     } catch (err) {
@@ -43,7 +44,7 @@ const Tests = () => {
     e.preventDefault();
     if (isEditing) {
       try {
-        await axios.put(`https://hospital-psi-two.vercel.app/test-types/${editingTestId}`, testForm);
+        await axios.put(`${BASE_URL}/test-types/${editingTestId}`, testForm);
         setIsEditing(false);
         setEditingTestId(null);
         setTestForm({ name: "", price: "" });
@@ -60,7 +61,7 @@ const Tests = () => {
       }
     } else {
       try {
-        await axios.post("https://hospital-psi-two.vercel.app/test-types", testForm);
+        await axios.post("${BASE_URL}/test-types", testForm);
         setTestForm({ name: "", price: "" });
         fetchTestTypes();
         toast.success("تم إضافة بيانات الفحص بنجاح", {
@@ -87,7 +88,7 @@ const Tests = () => {
 
   const handleRemoveTestType = async (id) => {
     try {
-      await axios.delete(`https://hospital-psi-two.vercel.app/test-types/${id}`);
+      await axios.delete(`${BASE_URL}/test-types/${id}`);
       fetchTestTypes();
       toast.success("تم حذف بيانات الفحص بنجاح", {
         position: "top-right",

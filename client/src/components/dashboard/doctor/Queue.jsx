@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import api, { BASE_URL } from "../../../api/baseUrl";
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Cookies from 'js-cookie';
 
 const Queue = () => {
   const [ticketNumber, setTicketNumber] = useState("");
@@ -22,9 +23,27 @@ const Queue = () => {
 
   const [testList, setTestList] = useState([]);
 
+  const [userInfo, setUserInfo] = useState(null);
+
+  const token = Cookies.get('token');
+
+  const getUserInfo = async () => {
+      try {
+          const res = await axios.get(BASE_URL + '/users/info', {
+              headers: {
+                  Authorization: `Bearer ${token}`
+              }
+          });
+          const data = res.data.data;
+          setUserInfo(data);
+      } catch (err) {
+          console.log(err);
+      }
+  };
+
   const fetchTestList = async () => {
     try {
-      const res = await axios.get('https://hospital-psi-two.vercel.app/test-types');
+      const res = await axios.get(`${BASE_URL}/test-types`);
       const data = res.data.data;
       setTestList(data);
     }catch (err) {
@@ -34,22 +53,63 @@ const Queue = () => {
 
   const fetchMedications = async () => {
     try {
-      const res = await axios.get('https://hospital-psi-two.vercel.app/medications');
+      const res = await axios.get(`${BASE_URL}/medications`);
       setMedicationsList(res.data.data); 
     } catch (err) {
       console.log(err);
     }
   };
 
+  const addPrescription = async () => {
+    const updatedMedications = {
+      medications: [...medications],
+      patient_id: patientData._id, 
+      patient_name: patientData.name,
+      payment_status: false
+    };
+
+    console.log(updatedMedications)
+
+    try {
+      await axios.post(`${BASE_URL}/prescriptions`, updatedMedications);
+    }catch (err) {
+      console.log(err)
+      toast.error("حدث خطأ أثناء إضافة الأدوية.", {
+        position: "top-right",
+        autoClose: 2000
+      });
+    }
+  }
+
+  const addTestsOrder = async () => {
+    const updatedTests = {
+      tests: [...tests],
+      clinicId: "67320b96b4f8d3da7eb9db6c",
+      patient_id: patientData._id, 
+      patient_name: patientData.name
+    };
+
+    console.log(updatedTests)
+
+    try {
+      await axios.post(`${BASE_URL}/test-orders`, updatedTests);
+    }catch (err) {
+      console.log(err)
+      toast.error("حدث خطأ أثناء إضافة الفحوصات.", {
+        position: "top-right",
+        autoClose: 2000
+      });
+    }
+  }
+
   const handleFetchTicket = async (e, number) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-
     try {
-      const response = await api.post("/tickets/", { number: number });
+      const response = await api.post("/tickets/", { number: ticketNumber, clinic: userInfo.clinicId });
       if (response.data.status === "success") {
-        setPatientData(response.patientData);
+        setPatientData(response.data.data.ticket.patient);
       } else {
         setError("لم يتم العثور على بيانات للتذكرة المطلوبة.");
       }
@@ -65,7 +125,7 @@ const Queue = () => {
     if (selectedMedication && medicationNotes) {
       const medication = medicationsList.find((med) => med._id === selectedMedication);
       if (medication) {
-        setMedications([...medications, { ...medication, notes: medicationNotes }]);
+        setMedications([...medications, { _id: medication._id, name: medication.name, notes: medicationNotes }]);
         setSelectedMedication("");
         setMedicationNotes(""); 
       }
@@ -74,27 +134,34 @@ const Queue = () => {
     }
   };
 
-  // Add test to the list
   const handleAddTest = () => {
     if (testTypeInput) {
-      setTests([...tests, { type: testTypeInput, instructions: preparationInstructionsInput }]);
+      setTests([...tests, { type: testTypeInput, test: testList.filter((test) => test.name === testTypeInput)[0]._id, notes: preparationInstructionsInput }]);
       setTestTypeInput(""); 
       setPreparationInstructionsInput(""); 
     }
   };
 
   const handleGetTickets = async () => {
+    if (!userInfo || !userInfo.clinicId) {
+      return;
+    }
     try {
-      const res = await axios.get(`${BASE_URL}/tickets`);
-      setTickets(res.data.tickets.filter(ticket => ticket.status === 'waiting').length);
+      const res = await axios.get(`${BASE_URL}/tickets?status=waiting&clinic=${userInfo.clinicId}`);
+      setTickets(res.data.tickets.length);
     } catch (err) {
       console.log(err);
     }
   };
 
   const handleNextPatient = async () => {
+    if (!userInfo?.clinicId) {
+      toast.error("Clinic ID is missing");
+      return;
+    }
+
     try {
-      const res = await axios.get(`${BASE_URL}/tickets/next`);
+      const res = await axios.get(`${BASE_URL}/tickets/next?clinic=${userInfo.clinicId}`);
       setPatientData(res.data.patientData);
       setTicket(res.data.data);
     } catch (err) {
@@ -103,33 +170,37 @@ const Queue = () => {
         autoClose: 2000
       });
       console.log(err);
+      setPatientData(null);
     }
   };
 
   useEffect(() => {
-    handleGetTickets();
-    fetchMedications(); 
-    fetchTestList();
+    getUserInfo();
   }, []);
+
+  useEffect(() => {
+    if (userInfo) {
+      handleGetTickets();
+      fetchMedications(); 
+      fetchTestList();
+    }
+  }, [userInfo]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     try {
-      // console.log(medications)
-
-      // if (medications.length > 0) {
-      //   await axios.post(`http://127.0.0.1:8007/prescriptions`, medications);
-      // }
-  
-      // // Step 3: Post Test Orders
-      // if (tests.length > 0) {
-      //   await axios.post(`http://127.0.0.1:8007/test-orders`, { tests });
-      // }
-
-      // await axios.post('http://127.0.0.1:8007/patients/' + patientData._id, patientData);
-      // await axios.post('http://127.0.0.1:8007/test-orders/' + patientData._id, patientData);
-      // await axios.post('http://127.0.0.1:8007/prescriptions/' + patientData._id, patientData);
+      if(tests.length > 0) {
+        addTestsOrder();
+      }
+      if(medications.length > 0) {
+        addPrescription();
+      }
+      await axios.put(`${BASE_URL}/tickets/${ticket._id}`, { status: "completed" });
+      await axios.put(`${BASE_URL}/patients/${patientData._id}`, { status: "completed" });
+      toast.success("تمت العملية بنجاح", {
+        position: "top-right",
+        autoClose: 2000
+      });
       handleNextPatient();
     } catch (error) {
       console.log(error);
@@ -269,7 +340,7 @@ const Queue = () => {
                   {tests.map((test, index) => (
                     <li key={index} className="bg-gray-100 p-2 rounded">
                       <strong>نوع الفحص:</strong> {test.type} <br />
-                      <strong>التعليمات:</strong> {test.instructions}
+                      <strong>التعليمات:</strong> {test.notes}
                     </li>
                   ))}
                 </ul>

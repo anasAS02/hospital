@@ -1,14 +1,49 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getPatients } from "../../../store/reducers/patientSlice";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { BASE_URL } from "../../../api/baseUrl";
+import Cookies from 'js-cookie';
 
 const Patients = () => {
-    const dispatch = useDispatch();
-    const patients = useSelector((state) => state.patient.patients).filter((patient) => patient.status === 'completed');
+  const [patients, setPatients] = useState([]);
+  const [userInfo, setUserInfo] = useState(null);
 
-    useEffect(() => {
-      dispatch(getPatients())
-    }, [dispatch])
+  const token = Cookies.get('token');
+
+  const getUserInfo = async () => {
+      try {
+          const res = await axios.get(BASE_URL + '/users/info', {
+              headers: {
+                  Authorization: `Bearer ${token}`
+              }
+          });
+          const data = res.data.data;
+          setUserInfo(data);
+      } catch (err) {
+          console.log(err);
+      }
+  };
+
+  const fetchPatients = async () => {
+      try {
+          if (userInfo) {
+              const res = await axios.get(`${BASE_URL}/patients?clinicId=${userInfo.clinicId}`);
+              const data = res.data.data;
+              setPatients(data.filter((patient) => patient.status === 'completed'));
+          }
+      } catch (err) {
+          console.log(err);
+      }
+  };
+
+  useEffect(() => {
+      getUserInfo();
+  }, []);
+
+  useEffect(() => {
+      if (userInfo) {
+          fetchPatients();
+      }
+  }, [userInfo]); 
 
   return (
     <div className="overflow-x-auto mt-8 w-full">

@@ -4,8 +4,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { allUsers, deleteUser, updateUser } from "../../../store/reducers/usersSlice";
 import { toast } from "react-toastify";
+import axios from "axios";
+import { BASE_URL } from "../../../api/baseUrl";
 
 function Employees() {
+  const [clinics, setClinics] = useState([]);
   const [isEditingMode, setIsEditingMode] = useState(false);
   const dispatch = useDispatch();
   const users = useSelector((state) => state.users.users);
@@ -47,8 +50,20 @@ function Employees() {
     }
   };
 
+  const fetchClinics = async () => {
+    try {
+      const res = await axios.get(BASE_URL + '/clinics');
+      const data = res.data.data;
+      setClinics(data);
+      console.log(data)
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   useEffect(() => {
     dispatch(allUsers());
+    fetchClinics();
   }, [dispatch]);
 
   const handleUpdate = (employee, e) => {
@@ -173,7 +188,13 @@ function Employees() {
             {users.map((user) => (
               <tr key={user._id} className="border-t">
                 <td className="px-4 py-2 text-center">{user.name}</td>
-                <td className="px-4 py-2 text-center">{user.role}</td>
+                <td className="px-4 py-2 text-center">
+                  {user.role === 'doctor'
+                    ? `طبيب - ${clinics.find(clinic => clinic._id === user.clinicId)?.name || ''}`
+                    : user.role === 'laboratory-doctor'
+                    ? 'طبيب المعمل'
+                    : user.role}
+                </td>
                 <td className="px-4 py-2 text-center">{user.email}</td>
                 <td className="px-4 py-2 text-center">
                 <FontAwesomeIcon

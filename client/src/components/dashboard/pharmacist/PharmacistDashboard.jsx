@@ -22,6 +22,13 @@ const PharmacistDashboard = () => {
     fetchPrescriptions();
   }, [])
 
+  const totalAmount = prescriptions.reduce((acc, item) => {
+    if (item.payment_status) {
+      return acc + item.total;
+      }
+      return acc;
+  }, 0);
+
   const total = prescriptions.reduce((acc, item) => {
     if (item.total) {
       return acc + item.total;
@@ -32,12 +39,10 @@ const PharmacistDashboard = () => {
   const handlePayment = async (prescription) => {
     const data = {
       ...prescription,
-      payment_status: true
     }
-    console.log('data', data._id)
-
+    
     try {
-      await axios.put(`${BASE_URL}/prescriptions/${data._id}/`, data);
+      await axios.put(`${BASE_URL}/prescriptions/${data._id}/`, {payment_status: true});
       toast.success('تم دفع الفاتورة بنجاح', {
         position: "top-right",
         autoClose: 2000,
@@ -73,13 +78,22 @@ const PharmacistDashboard = () => {
     <div className='w-full flex flex-col items-start gap-6 p-5'>
       <div className='w-full flex justify-between items-center'>
         <h1 className='text-3xl font-bold'>لوحة التحكم الصيدلية</h1>
-        <span className='flex items-center gap-1'>
-          <p className='font-bold'>مجمل الفواتير: {total} ر.س</p>
-          <FontAwesomeIcon
-          icon={faDollar}
-          className='text-sm text-green-500'
-          />
-        </span>
+        <div className='flex flex-col items-start gap-3'>
+          <span className='flex items-center gap-1'>
+            <p className='font-bold'>مجمل الفواتير: {total} ر.س</p>
+            <FontAwesomeIcon
+            icon={faDollar}
+            className='text-sm text-green-500'
+            />
+          </span>
+          <span className='flex items-center gap-1'>
+            <p className='font-bold'>مجمل  الفواتير المسددة: {totalAmount} ر.س</p>
+            <FontAwesomeIcon
+            icon={faDollar}
+            className='text-sm text-green-500'
+            />
+          </span>
+        </div>
       </div>
       <div className="overflow-x-auto mt-8 w-full">
           <table className="min-w-full table-auto border-collapse">
@@ -110,14 +124,28 @@ const PharmacistDashboard = () => {
                           }
                           </div>
                       </td>
-                      <td className="px-4 py-2 text-center">{item.notes}</td>
+                      <td className="px-4 py-2 text-center">
+                        <div className='flex flex-col justify-center items-center gap-2'>
+                            {
+                              item.medications.map((item, i) => (
+                                <p key={i}>
+                                  {item.notes}
+                                </p>
+                              ))    
+                            }
+                          </div>
+                      </td>
                       <td className="px-4 py-2 text-center">{item.pickup_status}</td>
                       <td className="px-4 py-2 text-center">{item.total} ر.س</td>
                       <td className="px-4 py-2 text-center">{item.payment_status ? 'تم التحصيل' : 'لم يتم التحصيل'}</td>
                       <td className="px-4 py-2 text-center">
-                          <button className='bg-blue-500 duration-200 hover:bg-blue-400 text-white px-4 py-2 rounded-md' onClick={() => handlePayment(item)}>
+                          {item.payment_status ? 
+                          <p className='font-bold'>-</p>
+                          :
+                            <button className='bg-blue-500 duration-200 hover:bg-blue-400 text-white px-4 py-2 rounded-md' onClick={() => handlePayment(item)}>
                             دفع الفاتورة
                           </button>
+                          }
                       </td>
                       <td className="px-4 py-2 text-center">
                           <FontAwesomeIcon

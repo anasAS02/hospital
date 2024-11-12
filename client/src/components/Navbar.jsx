@@ -3,16 +3,38 @@ import logo from '../assets/logo.png';
 import { FaSignOutAlt } from 'react-icons/fa';  
 import Cookies from 'js-cookie';
 import { useStatus } from '../StatusContext';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { BASE_URL } from '../api/baseUrl';
 
 const Navbar = () => {
-  const {isLoggedIn, setIsLoggedIn} = useStatus();
+  const [userInfo, setUserInfo] = useState(null);
+
+  const token = Cookies.get('token');
 
   const handleLogout = () => {
     Cookies.remove('role');
     Cookies.remove('token');
-    setIsLoggedIn(false);
     window.location.reload();
   };
+  
+  const getUserInfo = async () => {
+    try {
+      const res = await axios.get(BASE_URL + '/users/info', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      const data = res.data.data;
+      setUserInfo(data)
+    }catch(err) { 
+      console.log(err)
+    }
+  }
+
+  useEffect(() => {
+    getUserInfo();
+  }, [])
 
   return (
     <header className="w-full bg-white shadow-md p-3 flex justify-between items-center">
@@ -21,11 +43,11 @@ const Navbar = () => {
             <p>نظام ادارة الرعاية الصحية</p>
         </span>
         {
-          isLoggedIn &&
+          token &&
           <div className="flex items-center gap-4">
               <span className='flex items-center gap-2'>
                   <img src={avatar} alt="Logo" className="w-[40px]" />
-                  <p className='select-none'>كريم الأمير</p>
+                  <p className='select-none'>{userInfo?.name || ''}</p>
               </span>
               <button 
                   onClick={handleLogout} 
