@@ -67,15 +67,20 @@ export const addPatient = asyncHandler(async (req, res, next) => {
 });
 
 export const getPatients = asyncHandler(async (req, res, next) => {
-  const patients = await Patient.find().populate("clinicId", "name code national_id").populate("queueTicket", "ticketNumber ticketCode status queueNumber");
+  const { clinicId } = req.query; 
+
+  const query = clinicId ? { clinicId } : {};
+
+  const patients = await Patient.find(query)
+    .populate("clinicId", "name code national_id")
+    .populate("queueTicket", "ticketNumber ticketCode status queueNumber");
 
   res.status(200).json({ status: "success", data: patients });
 });
 
-
 export const updatePatient = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const { name, age, gender, phone, address, medicalCondition, clinicId, national_id } = req.body;
+  const { name, age, gender, phone, address, medicalCondition, clinicId, national_id, status } = req.body;
 
   // Find patient by ID
   const patient = await Patient.findById(id);
@@ -100,6 +105,7 @@ export const updatePatient = asyncHandler(async (req, res, next) => {
   patient.national_id = national_id || patient.national_id;
   patient.address = address || patient.address;
   patient.medicalCondition = medicalCondition || patient.medicalCondition;
+  patient.status = status || patient.status;
   patient.clinicId = clinic ? clinic._id : patient.clinicId;
 
   // Save the updated patient data

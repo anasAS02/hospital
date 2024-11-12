@@ -5,12 +5,12 @@ const ticketSchema = new Schema({
   ticketCode: { type: String, required: true },
   status: {
     type: String,
-    enum: ["waiting", "in consultation", "completed", "in-progress"],
+    enum: ["waiting", "completed", "in-progress"],
     default: "waiting",
   },
   patient: { type: Schema.Types.ObjectId, ref: "Patient" },
   clinic: { type: Schema.Types.ObjectId, ref: "Clinic" },
-  queueNumber: { type: Number, required: true }, // Queue number for this ticket
+  queueNumber: { type: Number, required: true },
 });
 
 const Ticket = model("Ticket", ticketSchema);

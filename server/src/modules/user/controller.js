@@ -33,6 +33,27 @@ export const addUser = asyncHandler(async (req, res, next) => {
 });
 
 
+export const getUserInfo = asyncHandler(async (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return next(new ApiError("Authorization token is required", 401));
+  }
+  jwt.verify(token, process.env.TOKEN_SECRET, async (err, decoded) => {
+    if (err) {
+      return next(new ApiError("Invalid or expired token", 401));
+    }
+    const user = await User.findById(decoded.userId).select("-password");
+    if (!user) {
+      return next(new ApiError("User not found", 404));
+    }
+    res.status(200).json({ status: "success", data: user });
+  });
+});
+
+
+
+
+
 export const getAllUsers = asyncHandler(async (req, res, next) => {
   const users = await User.find();
   res.status(200).json({ status: "success", data: users });

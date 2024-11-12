@@ -51,8 +51,6 @@ export const addPrescription = asyncHandler(async (req, res, next) => {
 
 export const getAllPrescriptions = asyncHandler(async (req, res, next) => {
     const prescriptions = await Pharmacy.find()
-      .populate("patient_id", "name")
-      .populate("medications", "name price");
   
     res.status(200).json({
       status: "success",
@@ -78,30 +76,14 @@ export const getAllPrescriptions = asyncHandler(async (req, res, next) => {
   
   export const updatePrescription = asyncHandler(async (req, res, next) => {
     const { prescription_id } = req.params;
-    const { medications, pickup_status, notes, payment_status } = req.body;
+    const { payment_status } = req.body;
   
     const prescription = await Pharmacy.findById(prescription_id);
     if (!prescription) {
       return next(new ApiError("Prescription not found", 404));
     }
   
-    const medicationIds = medications.map(med => med.medication);
-    const validMedications = await Medication.find({ _id: { $in: medicationIds } });
-    
-    if (validMedications.length !== medicationIds.length) {
-      return next(new ApiError("Some medications are invalid", 400));
-    }
-  
-    const calculatedTotal = medications.reduce((total, med) => {
-      const medication = validMedications.find(m => m._id.toString() === med.medication.toString());
-      return total + (medication ? medication.price : 0);
-    }, 0);
-  
-    prescription.medications = medications;
-    prescription.pickup_status = pickup_status;
-    prescription.notes = notes;
     prescription.payment_status = payment_status;
-    prescription.total = calculatedTotal;
   
     await prescription.save();
   
@@ -114,7 +96,6 @@ export const getAllPrescriptions = asyncHandler(async (req, res, next) => {
   
   export const deletePrescription = asyncHandler(async (req, res, next) => {
     const { prescription_id } = req.params;
-  
     const prescription = await Pharmacy.findByIdAndDelete(prescription_id);
     if (!prescription) {
       return next(new ApiError("Prescription not found", 404));
