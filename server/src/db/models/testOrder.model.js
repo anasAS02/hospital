@@ -18,6 +18,7 @@ const testOrderSchema = new Schema(
       enum: ["Pending", "Completed"],
       default: "Pending",
     },
+    pdfFilesPath: { type: [String] },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },

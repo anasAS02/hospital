@@ -11,6 +11,7 @@ const ticketSchema = new Schema({
   patient: { type: Schema.Types.ObjectId, ref: "Patient" },
   clinic: { type: Schema.Types.ObjectId, ref: "Clinic" },
   queueNumber: { type: Number, required: true },
+  pdfFilesPath: { type: [String] },
 });
 
 const Ticket = model("Ticket", ticketSchema);

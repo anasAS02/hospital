@@ -1,10 +1,8 @@
-// controllers/testType.controller.js
 
 import TestType from "../../db/models/testType.model.js"; 
 import { asyncHandler } from "../../middlewares/errorHandller.middleware.js";
 import ApiError from "../../utils/apiError.js"; 
 
-// Create a new test type
 export const createTestType = asyncHandler(async (req, res, next) => {
   const { name, price } = req.body;
 
@@ -21,7 +19,6 @@ export const createTestType = asyncHandler(async (req, res, next) => {
   });
 });
 
-// Get all test types
 export const getAllTestTypes = asyncHandler(async (req, res) => {
   const testTypes = await TestType.find();
 
@@ -31,7 +28,6 @@ export const getAllTestTypes = asyncHandler(async (req, res) => {
   });
 });
 
-// Get a single test type by ID
 export const getTestTypeById = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
@@ -46,7 +42,6 @@ export const getTestTypeById = asyncHandler(async (req, res, next) => {
   });
 });
 
-// Update a test type
 export const updateTestType = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const { name, price } = req.body;
@@ -68,7 +63,6 @@ export const updateTestType = asyncHandler(async (req, res, next) => {
   });
 });
 
-// Delete a test type
 export const deleteTestType = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 

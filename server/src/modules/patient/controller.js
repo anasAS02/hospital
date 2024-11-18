@@ -1,24 +1,31 @@
 import Counter from "../../db/models/counter.model.js";
 import Patient from "../../db/models/patient.schema.js";
 import Ticket from "../../db/models/ticket.model.js";
-import Clinic from "../../db/models/clinic.model.js"; 
+import Clinic from "../../db/models/clinic.model.js";
 import { asyncHandler } from "../../middlewares/errorHandller.middleware.js";
 import ApiError from "../../utils/apiError.js";
 
+const updateFilePaths = (files) => {
+  return files.map(filePath =>
+    filePath.replace(/^.*(?=uploads)/, "/").replace(/\\/g, "/")
+  );
+};
+
 export const addPatient = asyncHandler(async (req, res, next) => {
   const { name, age, gender, phone, address, medicalCondition, national_id, clinicId } = req.body;
+  const pdfFiles = req.files;
 
-  if(national_id.length!== 10) {
+  if (!national_id || national_id.length !== 10) {
     return next(new ApiError("يجب أن يكون رقم الهوية 10 أرقام", 422));
   }
 
-  // Find the clinic
   const clinic = await Clinic.findById(clinicId);
   if (!clinic) {
     return next(new ApiError("Clinic not found", 404));
   }
 
-  // Create the patient record with the clinicId
+  const pdfFilesPath = pdfFiles ? pdfFiles.map((file) => file.path) : [];
+
   const newPatient = await Patient.create({
     name,
     age,
@@ -27,33 +34,32 @@ export const addPatient = asyncHandler(async (req, res, next) => {
     address,
     medicalCondition,
     national_id,
-    clinicId, // Link the patient to a clinic
-    queueNumber: 0, // Placeholder, to be updated after ticket creation
+    clinicId,
+    queueNumber: 0,
+    pdfFilesPath: pdfFilesPath.length > 0 ? pdfFilesPath : undefined,
   });
 
-  // Increment the ticket counter for this clinic
   const counter = await Counter.findOneAndUpdate(
-    { name: `${clinic.code}-ticket` }, 
+    { name: `${clinic.code}-ticket` },
     { $inc: { value: 1 } },
     { new: true, upsert: true }
   );
 
   let ticketNumber = counter.value;
-  if (ticketNumber > 100) ticketNumber = 1; // Reset ticket number after 100
+  if (ticketNumber > 100) ticketNumber = 1;
 
-  const ticketCode = `${clinic.code}-${String(ticketNumber).padStart(2, '0')}`;
+  const ticketCode = `${clinic.code}-${String(ticketNumber).padStart(2, "0")}`;
 
-  // Create a new ticket for this patient
   const ticket = await Ticket.create({
     patient: newPatient._id,
     ticketNumber,
     ticketCode,
     national_id,
     clinic: clinic._id,
-    queueNumber: ticketNumber, // Set queue number based on ticket number
+    queueNumber: ticketNumber,
+    pdfFilesPath: pdfFilesPath.length > 0 ? pdfFilesPath : undefined, // Only include if files exist
   });
 
-  // Update the patient record with the ticket reference and queue number
   newPatient.queueTicket = ticket._id;
   newPatient.queueNumber = ticketNumber;
   await newPatient.save();
@@ -67,28 +73,33 @@ export const addPatient = asyncHandler(async (req, res, next) => {
 });
 
 export const getPatients = asyncHandler(async (req, res, next) => {
-  const { clinicId } = req.query; 
-
+  const { clinicId } = req.query;
   const query = clinicId ? { clinicId } : {};
 
   const patients = await Patient.find(query)
     .populate("clinicId", "name code national_id")
     .populate("queueTicket", "ticketNumber ticketCode status queueNumber");
 
-  res.status(200).json({ status: "success", data: patients });
+  const updatedPatients = patients.map((patient) => ({
+    ...patient.toObject(),
+    pdfFilePaths: patient.pdfFilesPath
+      ? updateFilePaths(patient.pdfFilesPath)
+      : [],
+  }));
+
+  res.status(200).json({ status: "success", data: updatedPatients });
 });
 
 export const updatePatient = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const { name, age, gender, phone, address, medicalCondition, clinicId, national_id, status } = req.body;
+  const pdfFiles = req.files;
 
-  // Find patient by ID
   const patient = await Patient.findById(id);
   if (!patient) {
     return next(new ApiError("Patient not found", 404));
   }
 
-  // Find clinic by ID if clinicId is provided to update
   let clinic = null;
   if (clinicId) {
     clinic = await Clinic.findById(clinicId);
@@ -97,7 +108,12 @@ export const updatePatient = asyncHandler(async (req, res, next) => {
     }
   }
 
-  // Update patient data
+  if (pdfFiles && pdfFiles.length > 0) {
+    const uploadedPaths = pdfFiles.map((file) => file.path);
+    patient.pdfFilesPath = patient.pdfFilesPath || [];
+    patient.pdfFilesPath.push(...uploadedPaths);
+  }
+
   patient.name = name || patient.name;
   patient.age = age || patient.age;
   patient.gender = gender || patient.gender;
@@ -108,7 +124,6 @@ export const updatePatient = asyncHandler(async (req, res, next) => {
   patient.status = status || patient.status;
   patient.clinicId = clinic ? clinic._id : patient.clinicId;
 
-  // Save the updated patient data
   const updatedPatient = await patient.save();
 
   res.status(200).json({
@@ -121,16 +136,12 @@ export const updatePatient = asyncHandler(async (req, res, next) => {
 export const deletePatient = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
-  // Find patient by ID
   const patient = await Patient.findById(id);
   if (!patient) {
     return next(new ApiError("Patient not found", 404));
   }
 
-  // Delete associated ticket if it exists
   const ticket = await Ticket.findOneAndDelete({ patient: id });
-
-  // Delete the patient record
   await Patient.findByIdAndDelete(id);
 
   res.status(200).json({

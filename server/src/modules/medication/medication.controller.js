@@ -2,7 +2,6 @@ import Medication from "../../db/models/medication.model.js";
 import { asyncHandler } from "../../middlewares/errorHandller.middleware.js";
 import ApiError from "../../utils/apiError.js";
 
-// Create a new medication
 export const createMedication = asyncHandler(async (req, res, next) => {
   const { name, price, description } = req.body;
 
@@ -19,7 +18,6 @@ export const createMedication = asyncHandler(async (req, res, next) => {
   });
 });
 
-// Get all medications
 export const getAllMedications = asyncHandler(async (req, res) => {
   const medications = await Medication.find();
 
@@ -29,7 +27,6 @@ export const getAllMedications = asyncHandler(async (req, res) => {
   });
 });
 
-// Get a single medication by ID
 export const getMedicationById = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
@@ -44,7 +41,6 @@ export const getMedicationById = asyncHandler(async (req, res, next) => {
   });
 });
 
-// Update a medication
 export const updateMedication = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const { name, price, description } = req.body;
@@ -65,7 +61,6 @@ export const updateMedication = asyncHandler(async (req, res, next) => {
   });
 });
 
-// Delete a medication
 export const deleteMedication = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 

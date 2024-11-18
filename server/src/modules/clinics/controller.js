@@ -1,9 +1,7 @@
 import Clinic from "../../db/models/clinic.model.js";
-import User from "../../db/models/user.model.js";
 import ApiError from "../../utils/apiError.js";
 import { asyncHandler } from "../../middlewares/errorHandller.middleware.js";
 
-// Add a new clinic
 export const addClinic = asyncHandler(async (req, res, next) => {
   const { name, code } = req.body;
 
@@ -17,13 +15,11 @@ export const addClinic = asyncHandler(async (req, res, next) => {
   });
 });
 
-// Get all clinics
 export const getAllClinics = asyncHandler(async (req, res) => {
   const clinics = await Clinic.find();
   res.status(200).json({ status: "success", data: clinics });
 });
 
-// Update a clinic
 export const updateClinic = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const { name, code } = req.body;
@@ -45,7 +41,6 @@ export const updateClinic = asyncHandler(async (req, res, next) => {
   });
 });
 
-// Delete a clinic
 export const deleteClinic = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 

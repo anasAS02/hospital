@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { config } from "dotenv";
+import path from "path";
 
 import dbConnection from "./src/db/dbConnection.js";
 import { globalError } from "./src/middlewares/errorHandller.middleware.js";
@@ -18,12 +19,17 @@ import testTypeRoutes from "./src/modules/tests/routes.js";
 import testOrderRoutes from "./src/modules/testOrder/routes.js";
 
 config();
-
 dbConnection();
 const app = express();
 app.use(cors());
 app.use(express.json());
 const port = process.env.PORT || 5000;
+
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use("/uploads", express.static(path.join(__dirname, "src/uploads")));
+
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/patients", patientRoutes);
@@ -34,9 +40,11 @@ app.use("/prescriptions", pharmacyRoutes);
 app.use("/medications", medicationRoutes);
 app.use("/test-types", testTypeRoutes);
 app.use("/test-orders", testOrderRoutes);
+
 app.use("*", (req, res, next) => {
   next(new ApiError(`Can not find this route ${req.originalUrl}`, 400));
 });
+
 app.use(globalError);
 
 app.listen(port, () => {
