@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { addUSer } from "../../../store/reducers/usersSlice";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { BASE_URL } from "../../../api/baseUrl";
 
 function AddEmployee() {
-  const dispatch = useDispatch();
 
   const [clinics, setClinics] = useState([]);
 
@@ -54,7 +51,7 @@ function AddEmployee() {
     }
 
     try {
-      await dispatch(addUSer(employeeData)).unwrap();
+      await axios.post(`${BASE_URL}/users`, employeeData)
       toast.success("تم إضافة المستخدم بنجاح", {
         position: "top-right",
         autoClose: 2000,

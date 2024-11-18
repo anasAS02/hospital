@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { allUsers, deleteUser, updateUser } from "../../../store/reducers/usersSlice";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { BASE_URL } from "../../../api/baseUrl";
@@ -10,8 +8,17 @@ import { BASE_URL } from "../../../api/baseUrl";
 function Employees() {
   const [clinics, setClinics] = useState([]);
   const [isEditingMode, setIsEditingMode] = useState(false);
-  const dispatch = useDispatch();
-  const users = useSelector((state) => state.users.users);
+  const [users, setUsers] = useState([]);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get(BASE_URL + '/users');
+      const data = res.data.data;
+      setUsers(data);
+    }catch(err) {
+      console.log(err)
+    }
+  }
 
   const [employeeData, setEmployeeData] = useState({
     _id: '',
@@ -28,7 +35,7 @@ function Employees() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(updateUser({ id: employeeData._id, userData: employeeData })).unwrap();
+      await axios.put(`${BASE_URL} + '/users/${employeeData._id}`, { userData: employeeData })
       toast.success("تم تحديث بيانات المستخدم بنجاح", {
         position: "top-right",
         autoClose: 2000,
@@ -41,7 +48,7 @@ function Employees() {
         password: "",
       })
       setIsEditingMode(false);
-      dispatch(allUsers());
+      fetchUsers();
     } catch (error) {
       toast.error(`فشل في التحديث: ${error.message}`, {
         position: "top-right",
@@ -55,16 +62,15 @@ function Employees() {
       const res = await axios.get(BASE_URL + '/clinics');
       const data = res.data.data;
       setClinics(data);
-      console.log(data)
     } catch (error) {
       console.log(error);
     }
   }
 
   useEffect(() => {
-    dispatch(allUsers());
+    fetchUsers();
     fetchClinics();
-  }, [dispatch]);
+  }, []);
 
   const handleUpdate = (employee, e) => {
     e.preventDefault();
@@ -85,12 +91,12 @@ function Employees() {
   const handleRemove = async (id, e) => {
     e.preventDefault();
     try {
-      await dispatch(deleteUser(id)).unwrap();;
+      await axios.delete(`${BASE_URL}/users/${id}`);
       toast.success("تم حذف المستخدم بنجاح", {
         position: "top-right",
         autoClose: 2000,
       });
-      dispatch(allUsers());
+      fetchUsers();
     }catch(err) {
       toast.error(`فشل في الحذف: ${err.message}`, {
         position: "top-right",

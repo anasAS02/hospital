@@ -13,7 +13,6 @@ import LaboratoryDoctorDashboard from "./components/dashboard/laboratory-doctor/
 
 function App() {
   const role = Cookies.get('role');
-  console.log(role)
   return (
     <StatusProvider>
       <Navbar />

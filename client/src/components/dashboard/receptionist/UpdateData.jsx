@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getPatients } from "../../../store/reducers/patientSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
@@ -9,8 +7,7 @@ import { BASE_URL } from "../../../api/baseUrl";
 
 function UpdateData() {
   const [isEditingMode, setIsEditingMode] = useState(false);
-  const dispatch = useDispatch();
-  const patients = useSelector((state) => state.patient.patients);
+  const [patients, setPatients] = useState([]);
 
   const [patientData, setPatientData] = useState({
     _id: "",
@@ -24,6 +21,15 @@ function UpdateData() {
     status: "waiting",
   });
 
+  const fetchPatients = async () => {
+    try{
+      const res = await axios.get(`${BASE_URL}/patients`);
+      setPatients(res.data.data);
+    }catch (error) {
+      console.log(error)
+    }
+  }
+
   const handleChange = (e) => {
     setPatientData({ ...patientData, [e.target.name]: e.target.value });
   };
@@ -36,7 +42,7 @@ function UpdateData() {
         position: "top-right",
         autoClose: 2000,
       });
-      dispatch(getPatients());
+      fetchPatients();
       setPatientData({
         _id: "",
         name: "",
@@ -58,8 +64,8 @@ function UpdateData() {
   };
 
   useEffect(() => {
-    dispatch(getPatients());
-  }, [dispatch]);
+    fetchPatients();
+  }, []);
 
   const handleUpdate = (patient, e) => {
     e.preventDefault();
@@ -88,7 +94,7 @@ function UpdateData() {
         position: "top-right",
         autoClose: 2000,
       });
-      dispatch(getPatients());
+      fetchPatients();
     } catch (error) {
       console.log(error)
       toast.error(`فشل في حذف المريض: ${error.message}`, {

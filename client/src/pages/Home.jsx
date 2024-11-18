@@ -7,24 +7,14 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { BASE_URL } from '../api/baseUrl';
+import AddPatient from './AddPatient';
 
 const Home = () => {
   const { isLoggedIn, setIsLoggedIn, isLoading, setIsLoading } = useStatus();
   const [ticketNumber, setTicketNumber] = useState("");
-  const [ticketData, setTicketData] = useState(null);
+  const [ticket, setTicket] = useState(null);
   const [clinics, setClinics] = useState([]);
   const [tickets, setTickets] = useState([]);
-
-  const [patient, setPatient] = useState({
-    name: "",
-    age: "",
-    national_id: "",
-    phone: "",
-    address: "",
-    gender: "male",
-    medicalCondition: "",
-    clinicId: "",
-  });
 
   const fetchTickets = async () => {
     setIsLoading(true);
@@ -41,9 +31,8 @@ const Home = () => {
   const handleGetTicketInfo = async () => {
     setIsLoading(true)
     try {
-      const res = await axios.post(`${BASE_URL}/tickets`, { number: ticketNumber });
-      console.log("DATA", res.data.data.ticket)
-      setTicketData(res.data.data.ticket);
+      const res = await axios.post(`${BASE_URL}/tickets/number`, { number: ticketNumber });
+      setTicket(res.data.data.ticket);
       toast.success("تم جلب البيانات بنجاح", {
         position: "top-right",
         autoClose: 2000,
@@ -73,42 +62,6 @@ const Home = () => {
     setIsLoading(false);
   };
 
-  const handleChange = (e) => {
-    setPatient({ ...patient, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post(`${BASE_URL}/patients/`, patient);
-      toast.success("تم حجز الكشف بنجاح", {
-        position: "top-right",
-        autoClose: 2000,
-      });
-
-      setPatient({
-        name: "",
-        age: "",
-        national_id: "",
-        phone: "",
-        address: "",
-        gender: "male",
-        medicalCondition: "",
-        clinicId: clinics?.[0]?._id || "",
-      });
-      fetchClinics();
-      fetchTickets();
-    }catch (err) {
-      console.log(err)
-      toast.error((err.response.data.message === 'يجب أن يكون رقم الهوية 10 أرقام') ? err.response.data.message : 'فشل في حجز الكشف', {
-        position: "top-right",
-        autoClose: 2000,
-      });
-    }finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     fetchClinics();
     fetchTickets();
@@ -129,7 +82,7 @@ const Home = () => {
                 <div key={clinic._id} className={`p-2 h-[140px] rounded-lg bg-pink-500 duration-200 hover:bg-pink-400 text-white hover:text-pink-600 flex flex-col justify-between items-center`}>
                   <h3 className='font-bold text-xl'>{clinic.name}</h3>
                   <p className='font-bold text-xl mr-auto'>
-                    {tickets.filter((ticket) => ticket.clinic === clinic._id).length}
+                    {tickets.filter((ticket) => ticket.clinic === clinic._id && ticket.status === 'waiting').length}
                   </p>
                 </div>
               ))}
@@ -157,141 +110,24 @@ const Home = () => {
                 </button>
               </div>
 
-              {ticketData && (
-                <div className="w-full border p-4 bg-gradient-to-l from-blue-500 to-green-500 text-white rounded-lg hover:shadow-xl duration-200">
-                  <h2 className="text-2xl font-bold mb-4 underline">تفاصيل المريض</h2>
-                  <div className="space-y-2">
-                    <p><span className="font-semibold">الاسم:</span> {ticketData.patient.name}</p>
-                    <p><span className="font-semibold">رقم التذكرة:</span> {ticketData.ticketCode} #</p>
-                    <p><span className="font-semibold">العمر:</span> {ticketData.patient.age}</p>
-                    <p><span className="font-semibold">رقم الهوية:</span> {ticketData.patient.national_id}</p>
-                    <p><span className="font-semibold">الجنس:</span> {ticketData.patient.gender === 'male' ? 'ذكر' : 'أنثى'}</p>
-                    <p><span className="font-semibold">الدور:</span> {ticketData.patient.queueNumber}</p>
+              {ticket && (
+                <>
+                  <div className="w-full border p-4 bg-gradient-to-l from-blue-500 to-green-500 text-white rounded-lg hover:shadow-xl duration-200">
+                    <h2 className="text-2xl font-bold mb-4 underline">تفاصيل المريض</h2>
+                    <div className="space-y-2">
+                      <p><span className="font-semibold">الاسم:</span> {ticket.patient.name}</p>
+                      <p><span className="font-semibold">رقم التذكرة:</span> {ticket.ticketCode} #</p>
+                      <p><span className="font-semibold">العمر:</span> {ticket.patient.age} سنوات</p>
+                      <p><span className="font-semibold">الجنس:</span> {ticket.patient.gender === 'male' ? 'ذكر' : 'أنثى'}</p>
+                      <p><span className="font-semibold">رقم الهاتف:</span> {ticket.patient.phone}</p>
+                      <p><span className="font-semibold">العنوان:</span> {ticket.patient.address}</p>
+                      <p><span className="font-semibold">الشكوى:</span> {ticket.patient.medicalCondition}</p>
+                    </div>
                   </div>
-                </div>
+                </>
               )}
             </div>
-            <h2 className='text-xl font-bold ml-auto'>حجز</h2>
-            <form onSubmit={handleSubmit} className="w-full p-5 rounded-md shadow-lg space-y-6 bg-white">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-600 mb-1">الاسم الكامل</label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  placeholder="أدخل الاسم الكامل"
-                  value={patient.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label htmlFor="age" className="block text-sm font-medium text-gray-600 mb-1">العمر</label>
-                <input
-                  id="age"
-                  name="age"
-                  type="number"
-                  placeholder="أدخل العمر"
-                  value={patient.age}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="national_id"
-                  className="block text-sm font-medium text-gray-600 mb-1"
-                >
-                  رقم الهوية
-                </label>
-                <input
-                  id="national_id"
-                  name="national_id"
-                  type="text"
-                  placeholder="أدخل رقم الهوية"
-                  value={patient.national_id}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-600 mb-1">رقم الهاتف</label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="text"
-                  placeholder="أدخل رقم الهاتف"
-                  value={patient.phone}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-600 mb-1">العنوان</label>
-                <input
-                  id="address"
-                  name="address"
-                  type="text"
-                  placeholder="أدخل العنوان"
-                  value={patient.address}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label htmlFor="gender" className="block text-sm font-medium text-gray-600 mb-1">الجنس</label>
-                <select
-                  id="gender"
-                  name="gender"
-                  value={patient.gender}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                >
-                  <option value="male">ذكر</option>
-                  <option value="female">أنثى</option>
-                </select>
-              </div>
-              <div>
-                <label htmlFor="clinicId" className="block text-sm font-medium text-gray-600 mb-1">اختيار العيادة</label>
-                <select
-                  id="clinicId"
-                  name="clinicId"
-                  value={patient.clinicId}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                >
-                  {clinics.map((clinic) => (
-                    <option key={clinic._id} value={clinic._id}>
-                      {clinic.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="medicalCondition" className="block text-sm font-medium text-gray-600 mb-1">الشكوى</label>
-                <textarea
-                  id="medicalCondition"
-                  name="medicalCondition"
-                  value={patient.medicalCondition}
-                  onChange={handleChange}
-                  placeholder="أدخل الشكوى الطبية"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-blue-400 to-green-500 text-white font-semibold py-2 rounded-lg shadow-lg hover:from-blue-500 hover:to-green-600 hover:shadow-2xl transition duration-300 ease-in-out"
-              >
-                تأكيد الحجز
-              </button>
-            </form>
+            <AddPatient />
           </div>
         ) : (
           <LoginPage />

@@ -6,15 +6,12 @@ import { BASE_URL } from "../../../api/baseUrl";
 
 const InquiriesPage = () => {
   const [ticketNumber, setTicketNumber] = useState("");
-  const [ticketCode, setTicketCode] = useState(null);
-  const [patientData, setPatientData] = useState(null);
+  const [ticket, setTicket] = useState(null);
 
   const handleGetTicketInfo = async () => {
     try {
-      const res = await axios.post(`${BASE_URL}/tickets`, {number: ticketNumber});
-      console.log(res.data)
-      setPatientData(res.data.data.patientData);
-      setTicketCode(res.data.data.ticket[0].ticketCode);
+      const res = await axios.post(`${BASE_URL}/tickets/number`, {number: ticketNumber});
+      setTicket(res.data.data.ticket);
       toast.success("تم جلب البيانات بنجاح", {
         position: "top-right",
         autoClose: 2000,
@@ -51,18 +48,18 @@ const InquiriesPage = () => {
         </button>
       </div>
 
-      {patientData && (
+      {ticket && (
         <>
           <div className="w-full border p-4 bg-gradient-to-l from-blue-500 to-green-500 text-white rounded-lg hover:shadow-xl duration-200">
             <h2 className="text-2xl font-bold mb-4 underline">تفاصيل المريض</h2>
             <div className="space-y-2">
-              <p><span className="font-semibold">الاسم:</span> {patientData.name}</p>
-              <p><span className="font-semibold">رقم التذكرة:</span> {ticketCode} #</p>
-              <p><span className="font-semibold">العمر:</span> {patientData.age} سنوات</p>
-              <p><span className="font-semibold">الجنس:</span> {patientData.gender === 'male' ? 'ذكر' : 'أنثى'}</p>
-              <p><span className="font-semibold">رقم الهاتف:</span> {patientData.phone}</p>
-              <p><span className="font-semibold">العنوان:</span> {patientData.address}</p>
-              <p><span className="font-semibold">الشكوى:</span> {patientData.medicalCondition}</p>
+              <p><span className="font-semibold">الاسم:</span> {ticket.patient.name}</p>
+              <p><span className="font-semibold">رقم التذكرة:</span> {ticket.ticketCode} #</p>
+              <p><span className="font-semibold">العمر:</span> {ticket.patient.age} سنوات</p>
+              <p><span className="font-semibold">الجنس:</span> {ticket.patient.gender === 'male' ? 'ذكر' : 'أنثى'}</p>
+              <p><span className="font-semibold">رقم الهاتف:</span> {ticket.patient.phone}</p>
+              <p><span className="font-semibold">العنوان:</span> {ticket.patient.address}</p>
+              <p><span className="font-semibold">الشكوى:</span> {ticket.patient.medicalCondition}</p>
             </div>
           </div>
         </>

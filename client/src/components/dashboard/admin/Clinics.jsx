@@ -121,7 +121,6 @@ const Clinics = () => {
   useEffect(() => {
     fetchClinics();
     fetchDoctors();
-    console.log(clinics)
   }, []);
 
   return (

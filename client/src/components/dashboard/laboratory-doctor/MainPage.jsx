@@ -26,9 +26,9 @@ const MainPage = () => {
     const fetchPatients = async () => {
         try {
             if (userInfo) {
-                const res = await axios.get(`${BASE_URL}/patients?clinicId=${userInfo.clinicId}`);
-                const data = res.data.data;
-                setPatients(data.filter((patient) => patient.status === 'waiting'));
+                const res = await axios.get(`${BASE_URL}/tickets`);
+                const data = res.data.tickets;
+                setPatients(data.filter((patient) => patient.clinic === userInfo.clinicId && patient.status === 'waiting'));
             }
         } catch (err) {
             console.log(err);
@@ -63,8 +63,8 @@ const MainPage = () => {
                     <tbody>
                     {patients.map((patient) => (
                         <tr key={patient._id} className="border-t">
-                            <td className="px-4 py-2 text-center">{patient.name}</td>
-                            <td className="px-4 py-2 text-center">{patient.age}</td>
+                            <td className="px-4 py-2 text-center">{patient.patient.name}</td>
+                            <td className="px-4 py-2 text-center">{patient.patient.age}</td>
                             <td className="px-4 py-2 text-center">
                                 <span className={`px-2 py-1 rounded-full text-sm bg-yellow-300 text-white`}>{patient.status}</span>
                             </td>

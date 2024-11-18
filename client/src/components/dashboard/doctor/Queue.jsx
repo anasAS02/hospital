@@ -68,8 +68,6 @@ const Queue = () => {
       payment_status: false
     };
 
-    console.log(updatedMedications)
-
     try {
       await axios.post(`${BASE_URL}/prescriptions`, updatedMedications);
     }catch (err) {
@@ -88,8 +86,6 @@ const Queue = () => {
       patient_id: patientData._id, 
       patient_name: patientData.name
     };
-
-    console.log(updatedTests)
 
     try {
       await axios.post(`${BASE_URL}/test-orders`, updatedTests);
@@ -176,7 +172,7 @@ const Queue = () => {
 
   useEffect(() => {
     getUserInfo();
-  }, []);
+  }, [patientData]);
 
   useEffect(() => {
     if (userInfo) {
@@ -184,7 +180,8 @@ const Queue = () => {
       fetchMedications(); 
       fetchTestList();
     }
-  }, [userInfo]);
+  }, [userInfo, patientData]);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -345,7 +342,25 @@ const Queue = () => {
                   ))}
                 </ul>
               </div>
-
+              {ticket.pdfFilesPath && ticket.pdfFilesPath.length > 0 &&
+                <p className='ml-auto'>نتائج الفحوصات السابقة</p>
+              }
+              {ticket.pdfFilesPath && ticket.pdfFilesPath.length > 0 &&
+                ticket.pdfFilesPath.map((filePath, index) => {
+                const normalizedPath = filePath.replace(/^.*(?=uploads)/, "/").replace(/\\/g, "/");
+                return (
+                  <div key={index}>
+                    <a
+                      href={`${BASE_URL}${normalizedPath}`}
+                      download
+                      className="text-blue-500 underline"
+                    >
+                      تحميل نتيجة التحليل {index + 1}
+                    </a>
+                  </div>
+                );
+              })
+             }
               <button
                 onClick={handleSubmit}
                 className="w-full py-2 bg-gradient-to-l from-blue-500 to-green-500 text-white font-semibold rounded duration-300 hover:shadow-xl"

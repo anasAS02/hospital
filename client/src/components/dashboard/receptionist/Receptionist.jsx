@@ -4,13 +4,11 @@ import {
   faUserGroup,
   faUsers,
   faClipboardList,
-  faNotesMedical,
   faFileMedicalAlt,
   faBars,
   faXRay,
 } from "@fortawesome/free-solid-svg-icons";
 import QueuePAge from "./QueuePage";
-import ConsultationPage from "./ConsultationPage";
 import UpdateData from "./UpdateData";
 import InquiriesPage from "./InquiriesPage";
 import PharmacyPage from "./PharmacyPage";
@@ -35,7 +33,6 @@ const ReceptionistDashboard = () => {
 
   const tabs = [
     { name: "حجز كشف", label: "حجز كشف", icon: faClipboardList, comp: <QueuePAge /> },
-    { name: "حجز استشارة", label: "حجز استشارة", icon: faNotesMedical, comp: <ConsultationPage /> },
     { name: "تعديل بيانات", label: "تعديل بيانات", icon: faUsers, comp: <UpdateData /> },
     { name: "استعلامات", label: "استعلامات", icon: faFileMedicalAlt, comp: <InquiriesPage /> },
     { name: "الصيدلية", label: "الصيدلية", icon: faUserGroup, comp: <PharmacyPage /> },

@@ -41,7 +41,7 @@ const Patients = () => {
 
   useEffect(() => {
       if (userInfo) {
-          fetchPatients();
+        fetchPatients();
       }
   }, [userInfo]); 
 

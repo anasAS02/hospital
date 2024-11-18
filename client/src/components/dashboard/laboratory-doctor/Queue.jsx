@@ -9,19 +9,27 @@ const Queue = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [medicationsList, setMedicationsList] = useState([]);
-  const [medications, setMedications] = useState([]);
-  const [selectedMedication, setSelectedMedication] = useState("");
-  const [medicationNotes, setMedicationNotes] = useState(""); 
-  const [tests, setTests] = useState([]);
-  const [testTypeInput, setTestTypeInput] = useState("");
-  const [preparationInstructionsInput, setPreparationInstructionsInput] = useState("");
-
   const [tickets, setTickets] = useState(null);
   const [ticket, setTicket] = useState({ticketNumber: 'لا يوجد'});
   const [patientData, setPatientData] = useState(null);
+  const [testOrders, setTestOrders] = useState(null);
+ 
+  const fetchTestOrders = async () => {
+    if(patientData) {
+      try {
+        const res = await axios.get(`${BASE_URL}/test-orders`);
+        const data = res.data.data;
+        setTestOrders(data.filter(order => order.patient_id === patientData._id)[0])
+      }catch (error) {
+        console.log(error)
+      }
+    }
+  }
+  const [pdfFiles, setPdfFiles] = useState(null);
 
-  const [testList, setTestList] = useState([]);
+  const handleFileChange = (e) => {
+    setPdfFiles(e.target.files); 
+  };
 
   const [userInfo, setUserInfo] = useState(null);
 
@@ -29,11 +37,11 @@ const Queue = () => {
 
   const getUserInfo = async () => {
       try {
-          const res = await axios.get(BASE_URL + '/users/info', {
-              headers: {
-                  Authorization: `Bearer ${token}`
-              }
-          });
+        const res = await axios.get(BASE_URL + '/users/info', {
+            headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
           const data = res.data.data;
           setUserInfo(data);
       } catch (err) {
@@ -41,66 +49,12 @@ const Queue = () => {
       }
   };
 
-  const fetchTestList = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/test-types`);
-      const data = res.data.data;
-      setTestList(data);
-    }catch (err) {
-      console.log(err)
+  useEffect(() => {
+    if (patientData) {
+      fetchTestOrders();
     }
-  }
-
-  const fetchMedications = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/medications`);
-      setMedicationsList(res.data.data); 
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const addPrescription = async () => {
-    const updatedMedications = {
-      medications: [...medications],
-      patient_id: patientData._id, 
-      patient_name: patientData.name,
-      payment_status: false
-    };
-
-    console.log(updatedMedications)
-
-    try {
-      await axios.post(`${BASE_URL}/prescriptions`, updatedMedications);
-    }catch (err) {
-      console.log(err)
-      toast.error("حدث خطأ أثناء إضافة الأدوية.", {
-        position: "top-right",
-        autoClose: 2000
-      });
-    }
-  }
-
-  const addTestsOrder = async () => {
-    const updatedTests = {
-      tests: [...tests],
-      clinicId: "67320b96b4f8d3da7eb9db6c",
-      patient_id: patientData._id, 
-      patient_name: patientData.name
-    };
-
-    console.log(updatedTests)
-
-    try {
-      await axios.post(`${BASE_URL}/test-orders`, updatedTests);
-    }catch (err) {
-      console.log(err)
-      toast.error("حدث خطأ أثناء إضافة الفحوصات.", {
-        position: "top-right",
-        autoClose: 2000
-      });
-    }
-  }
+    console.log(ticket)
+  }, [patientData]);
 
   const handleFetchTicket = async (e, number) => {
     e.preventDefault();
@@ -118,27 +72,6 @@ const Queue = () => {
       console.log(err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleAddMedication = () => {
-    if (selectedMedication && medicationNotes) {
-      const medication = medicationsList.find((med) => med._id === selectedMedication);
-      if (medication) {
-        setMedications([...medications, { _id: medication._id, name: medication.name, notes: medicationNotes }]);
-        setSelectedMedication("");
-        setMedicationNotes(""); 
-      }
-    } else {
-      toast.error("يجب اختيار دواء وإدخال ملاحظات.");
-    }
-  };
-
-  const handleAddTest = () => {
-    if (testTypeInput) {
-      setTests([...tests, { type: testTypeInput, test: testList.filter((test) => test.name === testTypeInput)[0]._id, notes: preparationInstructionsInput }]);
-      setTestTypeInput(""); 
-      setPreparationInstructionsInput(""); 
     }
   };
 
@@ -176,27 +109,31 @@ const Queue = () => {
 
   useEffect(() => {
     getUserInfo();
-  }, []);
+  }, [patientData]);
 
   useEffect(() => {
     if (userInfo) {
       handleGetTickets();
-      fetchMedications(); 
-      fetchTestList();
     }
-  }, [userInfo]);
+  }, [userInfo, patientData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const files = Array.from(pdfFiles);
     try {
-      if(tests.length > 0) {
-        addTestsOrder();
-      }
-      if(medications.length > 0) {
-        addPrescription();
-      }
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append("pdfFiles", file);
+      });
+
+
       await axios.put(`${BASE_URL}/tickets/${ticket._id}`, { status: "completed" });
       await axios.put(`${BASE_URL}/patients/${patientData._id}`, { status: "completed" });
+      await axios.put(`${BASE_URL}/test-orders/${testOrders._id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       toast.success("تمت العملية بنجاح", {
         position: "top-right",
         autoClose: 2000
@@ -268,91 +205,56 @@ const Queue = () => {
             </div>
           </div>
 
-          <div className="border p-4 rounded-lg shadow-md w-full bg-white">
-            <h2 className="text-2xl font-bold mb-4">إضافة العلاج والفحوصات</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block font-semibold mb-2">العلاج</label>
-                <div className="flex gap-2">
-                  <select
-                    value={selectedMedication}
-                    onChange={(e) => setSelectedMedication(e.target.value)}
-                    className="w-full p-2 border rounded"
-                  >
-                    <option value="">اختر دواء</option>
-                    {medicationsList.map((med) => (
-                      <option key={med._id} value={med._id}>{med.name}</option>
-                    ))}
-                  </select>
-                  <textarea
-                    placeholder="أدخل ملاحظات عن الدواء"
-                    value={medicationNotes}
-                    onChange={(e) => setMedicationNotes(e.target.value)}
-                    className="w-full p-2 border rounded"
-                  />
-                  <button
-                    onClick={handleAddMedication}
-                    className="px-4 py-2 bg-gradient-to-l from-blue-500 to-green-500 text-white rounded hover:shadow-xl duration-200"
-                  >
-                    إضافة
-                  </button>
+          <div className="border p-4 rounded-lg shadow-md w-full bg-white flex flex-col items-start gap-3">
+            {
+              ticket.patient.tests && ticket.patient.tests.length > 0 &&
+              <>
+              {ticket.patient.tests.map((test) => (
+                <div key={test.test} className='w-full flex flex-col items-start gap-3'>
+                  {test.test_name}
                 </div>
-                <ul className="mt-2 space-y-1">
-                  {medications.map((med, index) => (
-                    <li key={index} className="bg-gray-100 p-2 rounded">
-                      <strong>{med.name}</strong><br />
-                      <span>ملاحظات: {med.notes}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
+              ))}
               <div>
-                <label className="block font-semibold mb-2">نوع الفحص</label>
-                <div className="flex gap-2">
-                  <select
-                    value={testTypeInput}
-                    onChange={(e) => setTestTypeInput(e.target.value)}
-                    className="w-full p-2 border rounded"
-                  >
-                    <option value="">اختر نوع الفحص</option>
-                    {
-                      testList.map((test) => (
-                        <option key={test._id} value={test.name}>{test.name}</option>
-                      ))
-                    }
-                  </select>
-                  <input
-                    type="text"
-                    value={preparationInstructionsInput}
-                    onChange={(e) => setPreparationInstructionsInput(e.target.value)}
-                    placeholder="أدخل تعليمات التحضير"
-                    className="w-full p-2 border rounded"
-                  />
-                  <button
-                    onClick={handleAddTest}
-                    className="px-4 py-2 bg-gradient-to-l from-blue-500 to-green-500 text-white rounded hover:shadow-xl duration-200"
-                  >
-                    إضافة
-                  </button>
-                </div>
-                <ul className="mt-2 space-y-1">
-                  {tests.map((test, index) => (
-                    <li key={index} className="bg-gray-100 p-2 rounded">
-                      <strong>نوع الفحص:</strong> {test.type} <br />
-                      <strong>التعليمات:</strong> {test.notes}
-                    </li>
-                  ))}
-                </ul>
+                <label htmlFor="file" className="block text-sm font-medium text-gray-600 mb-1">إرفاق نتائج الفحوصات</label>
+                <input
+                  id="file"
+                  name="pdfFile"
+                  type="file"
+                  multiple
+                  accept="application/pdf"
+                  onChange={handleFileChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                />
               </div>
+              </>
+            }
 
+              {ticket.pdfFilesPath && ticket.pdfFilesPath.length > 0 &&
+                <p className='ml-auto'>نتائج الفحوصات السابقة</p>
+              }
+              {ticket.pdfFilesPath && ticket.pdfFilesPath.length > 0 &&
+                ticket.pdfFilesPath.map((filePath, index) => {
+                const normalizedPath = filePath.replace(/^.*(?=uploads)/, "/").replace(/\\/g, "/");
+
+                return (
+                  <div key={index}>
+                    <a
+                      href={`${BASE_URL}${normalizedPath}`}
+                      download
+                      className="text-blue-500 underline"
+                    >
+                      تحميل نتيجة التحليل {index + 1}
+                    </a>
+                  </div>
+                );
+              })
+            }
               <button
                 onClick={handleSubmit}
                 className="w-full py-2 bg-gradient-to-l from-blue-500 to-green-500 text-white font-semibold rounded duration-300 hover:shadow-xl"
               >
                 الكشف التالي
               </button>
-            </div>
           </div>
         </>
       )}
