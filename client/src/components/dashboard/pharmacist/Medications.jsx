@@ -4,7 +4,7 @@ import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { BASE_URL } from "../../../api/baseUrl";
+import { BASE_URL } from "../../../constants/api";
 
 const Medications = () => {
   const [medications, setMedications] = useState([]);
@@ -20,7 +20,7 @@ const Medications = () => {
 
   const fetchMedications = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/medications`);
+      const res = await axios.get(API_ENDPOINTS.MEDICATIONS);
       const data = res.data.data;
       setMedications(data);
     } catch (err) {
@@ -43,7 +43,7 @@ const Medications = () => {
     e.preventDefault();
     if (isEditing) {
       try {
-        await axios.put(`${BASE_URL}/medications/${editingMedicationId}`, medicationForm);
+        await axios.put(`${API_ENDPOINTS.MEDICATIONS}/${editingMedicationId}`, medicationForm);
         setIsEditing(false);
         setEditingMedicationId(null);
         setMedicationForm({ name: "", description: "", price: "", available: true });
@@ -60,7 +60,7 @@ const Medications = () => {
       }
     } else {
       try {
-        await axios.post(`${BASE_URL}/medications`, medicationForm);
+        await axios.post(API_ENDPOINTS.MEDICATIONS, medicationForm);
         setMedicationForm({ name: "", description: "", price: "", available: true });
         fetchMedications();
         toast.success("تم إضافة بيانات العلاج بنجاح", {
@@ -89,7 +89,7 @@ const Medications = () => {
 
   const handleRemoveMedication = async (id) => {
     try {
-      await axios.delete(`${BASE_URL}/medications/${id}`);
+      await axios.delete(`${API_ENDPOINTS.MEDICATIONS}/${id}`);
       fetchMedications();
       toast.success("تم حذف بيانات العلاج بنجاح", {
         position: "top-right",

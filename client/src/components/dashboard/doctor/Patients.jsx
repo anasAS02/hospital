@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { BASE_URL } from "../../../api/baseUrl";
+import { BASE_URL } from "../../../constants/api";
 import Cookies from 'js-cookie';
 
 const Patients = () => {
@@ -11,7 +11,7 @@ const Patients = () => {
 
   const getUserInfo = async () => {
       try {
-          const res = await axios.get(BASE_URL + '/users/info', {
+          const res = await axios.get(API_ENDPOINTS.USERS, {
               headers: {
                   Authorization: `Bearer ${token}`
               }
@@ -26,7 +26,7 @@ const Patients = () => {
   const fetchPatients = async () => {
       try {
           if (userInfo) {
-              const res = await axios.get(`${BASE_URL}/patients?clinicId=${userInfo.clinicId}`);
+              const res = await axios.get(`${API_ENDPOINTS.PATIENTS}?clinicId=${userInfo.clinicId}`);
               const data = res.data.data;
               setPatients(data.filter((patient) => patient.status === 'completed'));
           }

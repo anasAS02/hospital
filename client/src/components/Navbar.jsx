@@ -4,7 +4,7 @@ import { FaSignOutAlt } from 'react-icons/fa';
 import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { BASE_URL } from '../api/baseUrl';
+import { BASE_URL } from '../constants/api';
 
 const Navbar = () => {
   const [userInfo, setUserInfo] = useState(null);

@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useStatus } from "../StatusContext";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { BASE_URL } from "../api/baseUrl";
+import { BASE_URL } from "../constants/api";
 import Logo from '../assets/logo.png';
 import { Link } from "react-router-dom";
 

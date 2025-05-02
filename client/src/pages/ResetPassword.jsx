@@ -3,7 +3,7 @@ import * as Yup from "yup";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import { BASE_URL } from "../api/baseUrl";
+import { BASE_URL } from "../constants/api";
 import Logo from "../assets/logo.png";
 import { useState } from "react";
 

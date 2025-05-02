@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { BASE_URL } from "../../../api/baseUrl";
+import { BASE_URL } from "../../../constants/api";
 
 function Employees() {
   const [clinics, setClinics] = useState([]);

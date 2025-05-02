@@ -1,6 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import { BASE_URL } from "../../../api/baseUrl";
+import { BASE_URL } from "../../../constants/api";
 import { useStatus } from '../../../StatusContext';
 import Loading from '../../Loading';
 import { useEffect, useState } from 'react';
@@ -19,7 +19,7 @@ const HomePage = () => {
   const fetchTickets = async () => {
     setIsLoading(true);
     try {
-      const res = await axios.get(`${BASE_URL}/tickets`, {params: {status: 'waiting'}});
+      const res = await axios.get(`${API_ENDPOINTS.TICKETS}`, {params: {status: 'waiting'}});
       setTickets(res.data.tickets);
       const nextWaitingTicket = res.data.tickets.find(t => t.status === 'waiting');
       setNextPatient(nextWaitingTicket);
@@ -52,7 +52,7 @@ const HomePage = () => {
   const fetchClinics = async () => {
     setIsLoading(true)
     try {
-      const res = await axios.get(`${BASE_URL}/clinics`);
+      const res = await axios.get(API_ENDPOINTS.CLINICS);
       setClinics(res.data.data);
     } catch (err) {
       console.log(err);

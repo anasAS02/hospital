@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { BASE_URL } from "../../../api/baseUrl";
+import { BASE_URL } from "../../../constants/api";
 
 function UpdateData() {
   const [isEditingMode, setIsEditingMode] = useState(false);
@@ -23,7 +23,7 @@ function UpdateData() {
 
   const fetchPatients = async () => {
     try{
-      const res = await axios.get(`${BASE_URL}/patients`);
+      const res = await axios.get(API_ENDPOINTS.PATIENTS);
       setPatients(res.data.data);
     }catch (error) {
       console.log(error)

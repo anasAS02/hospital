@@ -7,7 +7,7 @@ import Cookies from 'js-cookie';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
-import { BASE_URL } from '../api/baseUrl';
+import { BASE_URL } from '../constants/api';
 import AddPatient from './AddPatient';
 import { Users, Search, UserPlus, Clock, ChevronRight, ChevronLeft } from 'lucide-react';
 
@@ -24,7 +24,7 @@ const Home = () => {
 
   const fetchAds = async() => {
     try {
-      const res = await axios.get(`${BASE_URL}/ads/active`);
+      const res = await axios.get(`${API_ENDPOINTS.ADS}/active`);
       const data = res.data.data;
       setAds(data);
     }catch(err) {
@@ -107,7 +107,7 @@ const Home = () => {
   const fetchTickets = async () => {
     setIsLoading(true);
     try {
-      const res = await axios.get(`${BASE_URL}/tickets`, {params: {status: 'waiting'}});
+      const res = await axios.get(`${API_ENDPOINTS.TICKETS}`, {params: {status: 'waiting'}});
       setTickets(res.data.tickets);
       const nextWaitingTicket = res.data.tickets.find(t => t.status === 'waiting');
       setNextPatient(nextWaitingTicket);
@@ -128,7 +128,7 @@ const Home = () => {
     }
     setSearchLoading(true);
     try {
-      const res = await axios.post(`${BASE_URL}/tickets/number`, { number: ticketNumber });
+      const res = await axios.post(`${API_ENDPOINTS.TICKETS}/number`, { number: ticketNumber });
       setTicket(res.data.data.ticket);
       toast.success("تم جلب البيانات بنجاح", {
         position: "top-right",
@@ -148,7 +148,7 @@ const Home = () => {
   const fetchClinics = async () => {
     setIsLoading(true)
     try {
-      const res = await axios.get(`${BASE_URL}/clinics`);
+      const res = await axios.get(API_ENDPOINTS.CLINICS);
       setClinics(res.data.data);
     } catch (err) {
       console.log(err);

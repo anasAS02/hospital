@@ -1,4 +1,4 @@
-const BASE_URL = 'https://hospital-psi-two.vercel.app';
+export const BASE_URL = 'https://hospital-psi-two.vercel.app';
 
 export const API_ENDPOINTS = {
   // Auth

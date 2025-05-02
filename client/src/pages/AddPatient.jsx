@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
-import { BASE_URL } from '../api/baseUrl';
+import { BASE_URL } from '../constants/api';
 
 const AddPatient = () => {
     const { setIsLoading } = useStatus();
@@ -28,7 +28,7 @@ const AddPatient = () => {
     const fetchClinics = async () => {
       setIsFetchingClinics(true);
       try {
-        const res = await axios.get(`${BASE_URL}/clinics`);
+        const res = await axios.get(API_ENDPOINTS.CLINICS);
         setClinics(res.data.data);
       } catch (err) {
         console.log(err);

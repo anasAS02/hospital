@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
-import { BASE_URL } from '../../../api/baseUrl';
+import { BASE_URL } from '../../../constants/api';
 import Medications from './Medications';
 
 const PharmacistDashboard = () => {
@@ -11,7 +11,7 @@ const PharmacistDashboard = () => {
 
   const fetchPrescriptions = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/prescriptions/`);
+      const res = await axios.get(API_ENDPOINTS.PHARMACY);
       const data = res.data.data;
       setPrescriptions(data);
     } catch (error) {

@@ -4,7 +4,7 @@ import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { toast } from "react-toastify"; 
 import 'react-toastify/dist/ReactToastify.css'; 
-import { BASE_URL } from "../../../api/baseUrl";
+import { BASE_URL } from "../../../constants/api";
 
 const Clinics = () => {
   const [clinics, setClinics] = useState([]);
@@ -18,7 +18,7 @@ const Clinics = () => {
 
   const fetchDoctors = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/users`);
+      const res = await axios.get(API_ENDPOINTS.USERS);
       const data = res.data.data;
       setDoctors(data.filter((user) => user.role === "doctor" || user.role === "laboratory-doctor"));
     } catch (err) {
@@ -32,7 +32,7 @@ const Clinics = () => {
 
   const fetchClinics = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/clinics`);
+      const res = await axios.get(API_ENDPOINTS.CLINICS);
       const data = res.data.data;
       setClinics(data);
     } catch (err) {

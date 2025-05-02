@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import { BASE_URL } from '../../../api/baseUrl';
+import { BASE_URL } from '../../../constants/api';
 import { Trash2, Edit2, Plus, Image as ImageIcon } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
@@ -75,7 +75,7 @@ const Ads = () => {
     formData.append('status', status);
 
     try {
-      const response = await axios.post(`${BASE_URL}/ads`, formData, {
+      const response = await axios.post(API_ENDPOINTS.ADS, formData, {
         ...axiosConfig,
         headers: {
           ...axiosConfig.headers,

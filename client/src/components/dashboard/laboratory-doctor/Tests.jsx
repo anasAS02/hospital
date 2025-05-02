@@ -4,7 +4,7 @@ import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { toast } from "react-toastify"; 
 import 'react-toastify/dist/ReactToastify.css'; 
-import { BASE_URL } from "../../../api/baseUrl";
+import { BASE_URL } from "../../../constants/api";
 
 const Tests = () => {
   const [testTypes, setTestTypes] = useState([]);
