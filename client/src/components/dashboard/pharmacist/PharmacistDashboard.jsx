@@ -1,9 +1,5 @@
-import { faDollar, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
-import { toast } from 'react-toastify';
-import { BASE_URL } from '../../../constants/api';
 import { API_ENDPOINTS } from '../../../constants/api';
 import Medications from './Medications';
 

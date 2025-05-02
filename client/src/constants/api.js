@@ -6,8 +6,8 @@ export const API_ENDPOINTS = {
   REGISTER: `${BASE_URL}/auth/signup`,
   
   // Patient
-  PATIENTS: `${BASE_URL}/patient`,
-  PATIENT_BY_ID: (id) => `${BASE_URL}/patient/${id}`,
+  PATIENTS: `${BASE_URL}/patients`,
+  PATIENT_BY_ID: (id) => `${BASE_URL}/patients/${id}`,
   
   // Queue
   QUEUE: `${BASE_URL}/queue`,
@@ -34,8 +34,8 @@ export const API_ENDPOINTS = {
   USER_BY_ID: (id) => `${BASE_URL}/users/${id}`,
   
   // Tickets
-  TICKETS: `${BASE_URL}/ticket`,
-  TICKET_BY_ID: (id) => `${BASE_URL}/ticket/${id}`,
+  TICKETS: `${BASE_URL}/tickets`,
+  TICKET_BY_ID: (id) => `${BASE_URL}/tickets/${id}`,
 };
 
 export default API_ENDPOINTS;

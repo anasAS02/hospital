@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { BASE_URL } from "../../../constants/api";
+import { API_ENDPOINTS } from "../../../constants/api";
 import Cookies from 'js-cookie';
 
 const MainPage = () => {

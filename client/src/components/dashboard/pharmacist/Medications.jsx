@@ -4,7 +4,6 @@ import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { BASE_URL } from "../../../constants/api";
 import { API_ENDPOINTS } from "../../../constants/api";
 
 const Medications = () => {
