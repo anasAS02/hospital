@@ -4,6 +4,7 @@ import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { BASE_URL } from "../../../constants/api";
+import { API_ENDPOINTS } from "../../../constants/api";
 
 function UpdateData() {
   const [isEditingMode, setIsEditingMode] = useState(false);

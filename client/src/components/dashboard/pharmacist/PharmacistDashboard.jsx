@@ -4,6 +4,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
 import { BASE_URL } from '../../../constants/api';
+import { API_ENDPOINTS } from '../../../constants/api';
 import Medications from './Medications';
 
 const PharmacistDashboard = () => {

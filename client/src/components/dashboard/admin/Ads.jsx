@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { BASE_URL } from '../../../constants/api';
+import { API_ENDPOINTS } from '../../../constants/api';
 import { Trash2, Edit2, Plus, Image as ImageIcon } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';

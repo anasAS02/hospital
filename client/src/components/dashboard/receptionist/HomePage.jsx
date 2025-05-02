@@ -1,6 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import { BASE_URL } from "../../../constants/api";
+import { API_ENDPOINTS } from "../../../constants/api";
 import { useStatus } from '../../../StatusContext';
 import Loading from '../../Loading';
 import { useEffect, useState } from 'react';

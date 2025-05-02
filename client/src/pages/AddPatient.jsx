@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { BASE_URL } from '../constants/api';
+import { API_ENDPOINTS } from '../constants/api';
 
 const AddPatient = () => {
     const { setIsLoading } = useStatus();

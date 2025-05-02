@@ -8,6 +8,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { BASE_URL } from '../constants/api';
+import { API_ENDPOINTS } from '../constants/api';
 import AddPatient from './AddPatient';
 import { Users, Search, UserPlus, Clock, ChevronRight, ChevronLeft } from 'lucide-react';
 
