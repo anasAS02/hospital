@@ -9,6 +9,8 @@ const AddPatient = () => {
     const { setIsLoading } = useStatus();
     const [clinics, setClinics] = useState([]);
     const [pdfFiles, setPdfFiles] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isFetchingClinics, setIsFetchingClinics] = useState(false);
 
     const [patient, setPatient] = useState({
       name: "",
@@ -24,6 +26,7 @@ const AddPatient = () => {
     });
   
     const fetchClinics = async () => {
+      setIsFetchingClinics(true);
       try {
         const res = await axios.get(`${BASE_URL}/clinics`);
         setClinics(res.data.data);
@@ -33,8 +36,10 @@ const AddPatient = () => {
           position: "top-right",
           autoClose: 2000,
         });
+      } finally {
+        setIsFetchingClinics(false);
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
   
     const handleChange = (e) => {
@@ -54,6 +59,7 @@ const AddPatient = () => {
           });
         return;
       }
+      setIsSubmitting(true);
       try {
         const formData = new FormData();
         Object.keys(patient).forEach(key => formData.append(key, patient[key]));
@@ -81,14 +87,16 @@ const AddPatient = () => {
           medicalCondition: "",
           clinicId: clinics?.[0]?._id || "",
         });
+        setPdfFiles(null);
         fetchClinics();
       }catch (err) {
         console.log(err)
-        toast.error((err.response.data.message === 'يجب أن يكون رقم الهوية 10 أرقام') ? err.response.data.message : 'فشل في حجز الكشف', {
+        toast.error((err.response?.data?.message === 'يجب أن يكون رقم الهوية 10 أرقام') ? err.response.data.message : 'فشل في حجز الكشف', {
           position: "top-right",
           autoClose: 2000,
         });
       }finally {
+        setIsSubmitting(false);
         setIsLoading(false);
       }
     };
@@ -200,7 +208,8 @@ const AddPatient = () => {
                 value={patient.clinicId}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                disabled={isSubmitting || isFetchingClinics}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 <option value="">اختر العيادة: </option>
                 {clinics.map((clinic) => (
@@ -273,14 +282,34 @@ const AddPatient = () => {
                 accept="application/pdf"
                 multiple
                 onChange={handleFileChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                disabled={isSubmitting}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                 />
+                {pdfFiles && (
+                  <div className="mt-2 space-y-1">
+                    {Array.from(pdfFiles).map((file, index) => (
+                      <div key={index} className="text-sm text-gray-600">
+                        {file.name} ({Math.round(file.size / 1024)}KB)
+                      </div>
+                    ))}
+                  </div>
+                )}
             </div>
             <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-400 to-green-500 text-white font-semibold py-2 rounded-lg shadow-lg hover:from-blue-500 hover:to-green-600 hover:shadow-2xl transition duration-300 ease-in-out"
+            disabled={isSubmitting || isFetchingClinics}
+            className={`w-full bg-gradient-to-r from-blue-400 to-green-500 text-white font-semibold py-2 rounded-lg shadow-lg transition duration-300 ease-in-out relative ${isSubmitting || isFetchingClinics ? 'opacity-50 cursor-not-allowed' : 'hover:from-blue-500 hover:to-green-600 hover:shadow-2xl'}`}
             >
-            تأكيد الحجز
+              {isSubmitting ? (
+                <>
+                  <span className="opacity-0">تأكيد الحجز</span>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  </div>
+                </>
+              ) : (
+                'تأكيد الحجز'
+              )}
             </button>
         </form>      
     </div>

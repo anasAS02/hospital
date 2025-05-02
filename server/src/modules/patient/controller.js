@@ -5,15 +5,13 @@ import Clinic from "../../db/models/clinic.model.js";
 import { asyncHandler } from "../../middlewares/errorHandller.middleware.js";
 import ApiError from "../../utils/apiError.js";
 
-const updateFilePaths = (files) => {
-  return files.map(filePath =>
-    filePath.replace(/^.*(?=uploads)/, "/").replace(/\\/g, "/")
-  );
+const filterValidUrls = (urls) => {
+  return urls ? urls.filter(url => url) : [];
 };
 
 export const addPatient = asyncHandler(async (req, res, next) => {
   const { name, age, gender, phone, address, medicalCondition, national_id, clinicId, hasInsurance } = req.body;
-  const pdfFiles = req.files || []; 
+  const pdfFiles = req.files || [];
 
   if (!national_id || national_id.length !== 10) {
     return next(new ApiError("يجب أن يكون رقم الهوية 10 أرقام", 422));
@@ -23,7 +21,10 @@ export const addPatient = asyncHandler(async (req, res, next) => {
   if (!clinic) {
     return next(new ApiError("Clinic not found", 404));
   }
-  const pdfFilesPath = pdfFiles.length > 0 ? pdfFiles.map((file) => file.path) : undefined;
+
+  const pdfFilesPath = Array.isArray(pdfFiles) 
+    ? pdfFiles.map(file => file.cloudinaryUrl)
+    : pdfFiles.pdfFiles?.map(file => file.cloudinaryUrl) || [];
 
   const newPatient = await Patient.create({
     name,
@@ -84,9 +85,7 @@ export const getPatients = asyncHandler(async (req, res, next) => {
 
   const updatedPatients = patients.map((patient) => ({
     ...patient.toObject(),
-    pdfFilePaths: patient.pdfFilesPath
-      ? updateFilePaths(patient.pdfFilesPath)
-      : [],
+    pdfFilePaths: filterValidUrls(patient.pdfFilesPath),
   }));
 
   res.status(200).json({ status: "success", data: updatedPatients });
@@ -111,7 +110,7 @@ export const updatePatient = asyncHandler(async (req, res, next) => {
   }
 
   if (pdfFiles && pdfFiles.length > 0) {
-    const uploadedPaths = pdfFiles.map((file) => file.path);
+    const uploadedPaths = pdfFiles.map((file) => file.secure_url);
     patient.pdfFilesPath = patient.pdfFilesPath || [];
     patient.pdfFilesPath.push(...uploadedPaths);
   }

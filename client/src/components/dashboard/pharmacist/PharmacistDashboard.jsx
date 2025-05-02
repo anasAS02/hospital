@@ -23,58 +23,6 @@ const PharmacistDashboard = () => {
     fetchPrescriptions();
   }, [])
 
-  // const totalAmount = prescriptions.reduce((acc, item) => {
-  //   if (item.payment_status) {
-  //     return acc + item.total;
-  //     }
-  //     return acc;
-  // }, 0);
-
-  // const total = prescriptions.reduce((acc, item) => {
-  //   if (item.total) {
-  //     return acc + item.total;
-  //     }
-  //     return acc;
-  // }, 0);
-
-  // const handlePayment = async (prescription) => {
-  //   const data = {
-  //     ...prescription,
-  //   }
-    
-  //   try {
-  //     await axios.put(`${BASE_URL}/prescriptions/${data._id}/`, {payment_status: true});
-  //     toast.success('تم دفع الفاتورة بنجاح', {
-  //       position: "top-right",
-  //       autoClose: 2000,
-  //     });
-  //     fetchPrescriptions();
-  //   }catch (error) {
-  //     console.log(error)
-  //     toast.error('حدث خطأ ما, يرجى المحاولة مرة أخرى', {
-  //       position: "top-right",
-  //       autoClose: 2000,
-  //     });
-  //   }
-  // }
-
-  // const handleRemove = async (id) => {
-  //   try {
-  //     await axios.delete(`${BASE_URL}/prescriptions/${id}/`);
-  //     toast.success('تم دفع الفاتورة بنجاح', {
-  //       position: "top-right",
-  //       autoClose: 2000,
-  //     });
-  //     fetchPrescriptions();
-  //   }catch (error) {
-  //     console.log(error)
-  //     toast.error('حدث خطأ ما, يرجى المحاولة مرة أخرى', {
-  //       position: "top-right",
-  //       autoClose: 2000,
-  //     });
-  //   }
-  // }
-
   return (
     <div className='w-full flex flex-col items-start gap-6 p-5'>
       <div className='w-full flex justify-between items-center'>

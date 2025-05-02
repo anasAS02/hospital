@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { BASE_URL } from '../api/baseUrl';
 import AddPatient from './AddPatient';
-import { Users, Search, UserPlus, Clock } from 'lucide-react';
+import { Users, Search, UserPlus, Clock, ChevronRight, ChevronLeft } from 'lucide-react';
 
 const Home = () => {
   const { isLoggedIn, setIsLoggedIn, isLoading, setIsLoading } = useStatus();
@@ -18,6 +18,91 @@ const Home = () => {
   const [clinics, setClinics] = useState([]);
   const [tickets, setTickets] = useState([]);
   const [nextPatient, setNextPatient] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [ads, setAds] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+
+  const fetchAds = async() => {
+    try {
+      const res = await axios.get(`${BASE_URL}/ads/active`);
+      const data = res.data.data;
+      setAds(data);
+    }catch(err) {
+      console.log('error fetching ads', err)
+    }
+  }
+  
+  const Carousel = () => {
+    if(!ads.length > 0) return null;
+    const [currentIndex, setCurrentIndex] = useState(0);
+  
+    const nextSlide = () => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % ads.length);
+    };
+  
+    const prevSlide = () => {
+      setCurrentIndex((prevIndex) => (prevIndex - 1 + ads.length) % ads.length);
+    };
+  
+    useEffect(() => {
+      const timer = setInterval(nextSlide, 5000);
+      return () => clearInterval(timer);
+    }, [ads.length]);
+  
+    return (
+      <div className="relative w-full h-[400px] overflow-hidden rounded-xl">
+        {ads.map((ad, index) => (
+          <div
+            key={ad._id}
+            className={`absolute w-full h-full transition-transform duration-500 ease-in-out ${
+              index === currentIndex ? 'translate-x-0' : index < currentIndex ? 'translate-x-full' : '-translate-x-full'
+            }`}
+          >
+            <img
+              src={ad.image}
+              alt={ad.text}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent">
+              <div className="absolute bottom-0 right-0 p-6 text-white">
+                <p className="text-xl font-semibold">{ad.text}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+        
+        <button
+          onClick={prevSlide}
+          disabled={isLoading}
+          className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full transition-colors ${isLoading ? 'bg-white/10 cursor-not-allowed' : 'bg-white/30 hover:bg-white/50'}`}
+        >
+          <ChevronRight className="w-6 h-6 text-white" />
+        </button>
+        <button
+          onClick={nextSlide}
+          disabled={isLoading}
+          className={`absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full transition-colors ${isLoading ? 'bg-white/10 cursor-not-allowed' : 'bg-white/30 hover:bg-white/50'}`}
+        >
+          <ChevronLeft className="w-6 h-6 text-white" />
+        </button>
+  
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 space-x-reverse">
+          {ads.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              disabled={isLoading}
+              className={`w-2 h-2 rounded-full transition-colors ${isLoading ? 'bg-white/10 cursor-not-allowed' : index === currentIndex ? 'bg-white' : 'bg-white/50'}`}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  };
+  
+  useEffect(() => {
+    fetchAds();
+  }, []);
 
   const fetchTickets = async () => {
     setIsLoading(true);
@@ -34,7 +119,14 @@ const Home = () => {
   }
 
   const handleGetTicketInfo = async () => {
-    setIsLoading(true)
+    if (!ticketNumber) {
+      toast.error("يرجى إدخال رقم التذكرة", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      return;
+    }
+    setSearchLoading(true);
     try {
       const res = await axios.post(`${BASE_URL}/tickets/number`, { number: ticketNumber });
       setTicket(res.data.data.ticket);
@@ -44,12 +136,13 @@ const Home = () => {
       });
     } catch (err) {
       console.log(err);
-      toast.error("خطأ في بيانات التذكرة", {
+      toast.error(err.response?.data?.message || "خطأ في بيانات التذكرة", {
         position: "top-right",
         autoClose: 2000,
       });
+    } finally {
+      setSearchLoading(false);
     }
-    setIsLoading(false);
   };
 
   const fetchClinics = async () => {
@@ -86,6 +179,7 @@ const Home = () => {
     <div className='w-full min-h-screen bg-gradient-to-br from-gray-50 to-gray-100'>
       {isLoggedIn ? (
         <div className='w-full p-6 max-w-7xl mx-auto'>
+          <Carousel />
           {nextPatient && (
             <div className='mb-8 bg-white rounded-xl shadow-lg p-6 border-2 border-green-500'>
               <div className='flex items-center justify-between'>
@@ -144,10 +238,25 @@ const Home = () => {
                 />
                 <button
                   onClick={handleGetTicketInfo}
-                  className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300 flex items-center gap-2"
+                  disabled={searchLoading || !ticketNumber}
+                  className={`px-6 py-2 bg-blue-500 text-white rounded-lg transition-colors duration-300 flex items-center gap-2 relative ${searchLoading || !ticketNumber ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'}`}
                 >
-                  <Search className='w-5 h-5' />
-                  بحث
+                  {searchLoading ? (
+                    <>
+                      <span className="opacity-0 flex items-center gap-2">
+                        <Search className='w-5 h-5' />
+                        بحث
+                      </span>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Search className='w-5 h-5' />
+                      بحث
+                    </>
+                  )}
                 </button>
               </div>
 

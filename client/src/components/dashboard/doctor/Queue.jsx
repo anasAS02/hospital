@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import api, { BASE_URL } from "../../../api/baseUrl";
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
+import { API_ENDPOINTS } from '../../../constants/api';
 
 const Queue = () => {
   const [ticketNumber, setTicketNumber] = useState("");
@@ -29,7 +29,7 @@ const Queue = () => {
 
   const getUserInfo = async () => {
       try {
-          const res = await axios.get(BASE_URL + '/users/info', {
+          const res = await axios.get(API_ENDPOINTS.USERS + '/info', {
               headers: {
                   Authorization: `Bearer ${token}`
               }
@@ -37,23 +37,21 @@ const Queue = () => {
           const data = res.data.data;
           setUserInfo(data);
       } catch (err) {
-          console.log(err);
       }
   };
 
   const fetchTestList = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/test-types`);
+      const res = await axios.get(`${API_ENDPOINTS.TESTS}/types`);
       const data = res.data.data;
       setTestList(data);
     }catch (err) {
-      console.log(err)
     }
   }
 
   const fetchMedications = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/medications`);
+      const res = await axios.get(API_ENDPOINTS.MEDICATIONS);
       setMedicationsList(res.data.data); 
     } catch (err) {
       console.log(err);
@@ -69,9 +67,8 @@ const Queue = () => {
     };
 
     try {
-      await axios.post(`${BASE_URL}/prescriptions`, updatedMedications);
+      await axios.post(`${API_ENDPOINTS.PHARMACY}/prescriptions`, updatedMedications);
     }catch (err) {
-      console.log(err)
       toast.error("حدث خطأ أثناء إضافة الأدوية.", {
         position: "top-right",
         autoClose: 2000
@@ -80,7 +77,7 @@ const Queue = () => {
   }
 
   const addTestsOrder = async () => {
-    const response = await axios.get(`${BASE_URL}/users`);
+    const response = await axios.get(API_ENDPOINTS.USERS);
     const users = response.data.data; 
     const clinicDoctors = users.filter((user) => user.role === 'laboratory-doctor');
     const randomDoctor = clinicDoctors[Math.floor(Math.random() * clinicDoctors.length)];
@@ -92,9 +89,8 @@ const Queue = () => {
     };
 
     try {
-      await axios.post(`${BASE_URL}/test-orders`, updatedTests);
+      await axios.post(API_ENDPOINTS.TEST_ORDERS, updatedTests);
     }catch (err) {
-      console.log(err)
       toast.error("حدث خطأ أثناء إضافة الفحوصات.", {
         position: "top-right",
         autoClose: 2000
@@ -107,7 +103,7 @@ const Queue = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await api.post("/tickets/", { number: ticketNumber, clinic: userInfo.clinicId });
+      const response = await axios.post(API_ENDPOINTS.TICKETS, { number: ticketNumber, clinic: userInfo.clinicId });
       if (response.data.status === "success") {
         setPatientData(response.data.data.ticket.patient);
       } else {
@@ -147,7 +143,7 @@ const Queue = () => {
       return;
     }
     try {
-      const res = await axios.get(`${BASE_URL}/tickets?status=waiting&clinic=${userInfo.clinicId}`);
+      const res = await axios.get(`${API_ENDPOINTS.TICKETS}?status=waiting&clinic=${userInfo.clinicId}`);
       setTickets(res.data.tickets.length);
     } catch (err) {
       console.log(err);
@@ -161,7 +157,7 @@ const Queue = () => {
     }
 
     try {
-      const res = await axios.get(`${BASE_URL}/tickets/next?clinic=${userInfo.clinicId}`);
+      const res = await axios.get(`${API_ENDPOINTS.TICKETS}/next?clinic=${userInfo.clinicId}`);
       setPatientData(res.data.patientData);
       setTicket(res.data.data);
     } catch (err) {
@@ -196,8 +192,8 @@ const Queue = () => {
       if(medications.length > 0) {
         addPrescription();
       }
-      await axios.put(`${BASE_URL}/tickets/${ticket._id}`, { status: "completed" });
-      await axios.put(`${BASE_URL}/patients/${patientData._id}`, { status: "completed" });
+      await axios.put(`${API_ENDPOINTS.TICKETS}/${ticket._id}`, { status: "completed" });
+      await axios.put(`${API_ENDPOINTS.PATIENTS}/${patientData._id}`, { status: "completed" });
       toast.success("تمت العملية بنجاح", {
         position: "top-right",
         autoClose: 2000
@@ -352,11 +348,11 @@ const Queue = () => {
               }
               {ticket.pdfFilesPath && ticket.pdfFilesPath.length > 0 &&
                 ticket.pdfFilesPath.map((filePath, index) => {
-                const normalizedPath = filePath.replace(/^.*(?=uploads)/, "/").replace(/\\/g, "/");
                 return (
                   <div key={index}>
                     <a
-                      href={`${BASE_URL}${normalizedPath}`}
+                      target="_blank"
+                      href={filePath}
                       download
                       className="text-blue-500 underline"
                     >

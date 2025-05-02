@@ -6,10 +6,12 @@ import {
   faBars,
   faAdd,
   faHouseChimneyMedical,
+  faTv,
 } from "@fortawesome/free-solid-svg-icons";
 import AddEmployee from "./AddEmployee";
 import Employees from "./Employees";
 import Clinics from "./Clinics";
+import Ads from "./Ads";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState({
@@ -33,6 +35,7 @@ const AdminDashboard = () => {
     { name: "الموظفين", label: "الموظفين", icon: faUsers, comp: <Employees /> },
     { name: "إضافة موظف", label: "إضافة موظف", icon: faAdd, comp: <AddEmployee /> },
     { name: "العيادات", label: "العيادات", icon: faHouseChimneyMedical, comp: <Clinics /> },
+    { name: "الإعلانات", label: "الإعلانات", icon: faTv, comp: <Ads /> },
   ];
 
   return (

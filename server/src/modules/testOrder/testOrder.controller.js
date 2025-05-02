@@ -64,7 +64,7 @@ export const createTestOrder = asyncHandler(async (req, res, next) => {
     queueNumber: ticketNumber,
   });
 
-  const pdfFilesPath = pdfFiles ? pdfFiles.map((file) => file.path) : [];
+  const pdfFilesPath = pdfFiles || [];
 
   const newOrder = await TestOrder.create({
     patient_id,
@@ -91,10 +91,8 @@ export const getAllTestOrders = asyncHandler(async (req, res) => {
   const testOrders = await TestOrder.find();
 
   const updatedTestOrders = testOrders.map(order => ({
-    ...order.toObject(),  
-    pdfFilesPath: order.pdfFilesPath.map(filePath => {
-      return filePath.replace(/^.*(?=uploads)/, "/").replace(/\\/g, "/")
-    }),
+    ...order.toObject(),
+    pdfFilesPath: order.pdfFilesPath.filter(filePath => filePath)   
   }));
 
   res.status(200).json({
@@ -133,7 +131,7 @@ export const updateTestOrder = asyncHandler(async (req, res, next) => {
   }
 
   if (pdfFiles && pdfFiles.length > 0) {
-    const uploadedPaths = pdfFiles.map((file) => file.path); 
+    const uploadedPaths = pdfFiles.map((file) => file.secure_url); 
     if (!testOrder.pdfFilesPath) {
       testOrder.pdfFilesPath = [];
     }

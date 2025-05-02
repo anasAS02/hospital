@@ -4,10 +4,8 @@ import Ticket from "../../db/models/ticket.model.js";
 import { asyncHandler } from "../../middlewares/errorHandller.middleware.js";
 import ApiError from "../../utils/apiError.js";
 
-const normalizeFilePaths = (filePaths) => {
-  return filePaths.map((filePath) =>
-    filePath.replace(/^.*(?=uploads)/, "/").replace(/\\/g, "/")
-  );
+const filterValidUrls = (urls) => {
+  return urls ? urls.filter(url => url) : [];
 };
 
 export const getTickets = asyncHandler(async (req, res, next) => {
@@ -31,15 +29,11 @@ export const getTickets = asyncHandler(async (req, res, next) => {
         patient: patient
           ? {
               ...patient.toObject(),
-              pdfFilesPath: patient.pdfFilesPath
-                ? normalizeFilePaths(patient.pdfFilesPath)
-                : [],
+              pdfFilesPath: filterValidUrls(patient.pdfFilesPath),
               tests: testOrder ? testOrder.tests : [],
             }
           : null,
-        pdfFilesPath: ticket.pdfFilesPath
-          ? normalizeFilePaths(ticket.pdfFilesPath)
-          : [],
+        pdfFilesPath: filterValidUrls(ticket.pdfFilesPath),
       };
     })
   );
@@ -66,15 +60,11 @@ export const getTicket = asyncHandler(async (req, res, next) => {
 
   const normalizedTicket = {
     ...ticket[0].toObject(),
-    pdfFilesPath: ticket[0].pdfFilesPath
-      ? normalizeFilePaths(ticket[0].pdfFilesPath)
-      : [],
+    pdfFilesPath: filterValidUrls(ticket[0].pdfFilesPath),
     patient: patient
       ? {
           ...patient.toObject(),
-          pdfFilesPath: patient.pdfFilesPath
-            ? normalizeFilePaths(patient.pdfFilesPath)
-            : [],
+          pdfFilesPath: filterValidUrls(patient.pdfFilesPath),
           tests: testOrder ? testOrder.tests : [],
         }
       : null,
@@ -103,16 +93,12 @@ export const getTicketByNumber = asyncHandler(async (req, res, next) => {
 
   const normalizedTicket = {
     ...ticket[0].toObject(),
-    pdfFilesPath: ticket[0].pdfFilesPath
-      ? normalizeFilePaths(ticket[0].pdfFilesPath)
-      : [],
+    pdfFilesPath: filterValidUrls(ticket[0].pdfFilesPath),
     patient: patient
       ? {
           ...patient.toObject(),
-          pdfFilesPath: patient.pdfFilesPath
-            ? normalizeFilePaths(patient.pdfFilesPath)
-            : [],
-          tests: testOrder ? testOrder.tests : [], 
+          pdfFilesPath: filterValidUrls(patient.pdfFilesPath),
+          tests: testOrder ? testOrder.tests : [],
         }
       : null,
   };
@@ -138,16 +124,12 @@ export const updateTicketStatus = asyncHandler(async (req, res, next) => {
 
   const normalizedTicket = {
     ...ticket.toObject(),
-    pdfFilesPath: ticket.pdfFilesPath
-      ? normalizeFilePaths(ticket.pdfFilesPath)
-      : [],
+    pdfFilesPath: filterValidUrls(ticket.pdfFilesPath),
     patient: patient
       ? {
           ...patient.toObject(),
-          pdfFilesPath: patient.pdfFilesPath
-            ? normalizeFilePaths(patient.pdfFilesPath)
-            : [],
-          tests: testOrder ? testOrder.tests : [], 
+          pdfFilesPath: filterValidUrls(patient.pdfFilesPath),
+          tests: testOrder ? testOrder.tests : [],
         }
       : null,
   };
@@ -176,15 +158,11 @@ export const getNextTicket = asyncHandler(async (req, res, next) => {
 
   const normalizedTicket = {
     ...ticket.toObject(),
-    pdfFilesPath: ticket.pdfFilesPath
-      ? normalizeFilePaths(ticket.pdfFilesPath)
-      : [],
+    pdfFilesPath: filterValidUrls(ticket.pdfFilesPath),
     patient: patient
       ? {
           ...patient.toObject(),
-          pdfFilesPath: patient.pdfFilesPath
-            ? normalizeFilePaths(patient.pdfFilesPath)
-            : [],
+          pdfFilesPath: filterValidUrls(patient.pdfFilesPath),
           tests: testOrder ? testOrder.tests : [],
         }
       : null,

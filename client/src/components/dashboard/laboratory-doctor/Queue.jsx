@@ -1,43 +1,65 @@
-import { useEffect, useState } from 'react';
-import api, { BASE_URL } from "../../../api/baseUrl";
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
+import { API_ENDPOINTS } from '../../../constants/api';
 
 const Queue = () => {
   const [ticketNumber, setTicketNumber] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [tickets, setTickets] = useState(null);
   const [ticket, setTicket] = useState({ticketNumber: 'لا يوجد'});
   const [patientData, setPatientData] = useState(null);
   const [testOrders, setTestOrders] = useState(null);
- 
-  const fetchTestOrders = async () => {
-    if(patientData) {
-      try {
-        const res = await axios.get(`${BASE_URL}/test-orders`);
-        const data = res.data.data;
-        setTestOrders(data.filter(order => order.patient_id === patientData._id)[0])
-      }catch (error) {
-        console.log(error)
-      }
-    }
-  }
-  const [pdfFiles, setPdfFiles] = useState(null);
+  const token = Cookies.get('token');
 
-  const handleFileChange = (e) => {
-    setPdfFiles(e.target.files); 
-  };
+  const axiosConfig = useMemo(() => ({
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  }), [token]);
 
   const [userInfo, setUserInfo] = useState(null);
+  const [pdfFiles, setPdfFiles] = useState(null);
+ 
+  const fetchTestOrders = useCallback(async () => {
+    if (!patientData) return;
 
-  const token = Cookies.get('token');
+    try {
+      setLoading(true);
+      const res = await axios.get(API_ENDPOINTS.TEST_ORDERS, axiosConfig);
+      const data = res.data.data;
+      const patientOrders = data.filter(order => order.patient_id === patientData._id);
+      setTestOrders(patientOrders[0] || null);
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || 'خطأ في جلب طلبات الفحص';
+      setError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  }, [patientData, axiosConfig]);
+
+  const handleFileChange = useCallback((e) => {
+    const files = Array.from(e.target.files);
+    const validFiles = files.filter(file => {
+      if (file.type !== 'application/pdf') {
+        toast.error(`${file.name} - يجب أن يكون ملف PDF`);
+        return false;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`${file.name} - حجم الملف يجب أن يكون أقل من 5 ميجابايت`);
+        return false;
+      }
+      return true;
+    });
+    setPdfFiles(validFiles.length > 0 ? validFiles : null);
+  }, []);
 
   const getUserInfo = async () => {
       try {
-        const res = await axios.get(BASE_URL + '/users/info', {
+        const res = await axios.get(API_ENDPOINTS.USERS + '/info', {
             headers: {
             Authorization: `Bearer ${token}`
           }
@@ -55,56 +77,91 @@ const Queue = () => {
     }
   }, [patientData]);
 
-  const handleFetchTicket = async (e, number) => {
+  const handleFetchTicket = useCallback(async (e) => {
     e.preventDefault();
+    if (!ticketNumber.trim()) {
+      toast.error('يرجى إدخال رقم التذكرة');
+      return;
+    }
+    if (!userInfo?.clinicId) {
+      toast.error('معرف العيادة غير متوفر');
+      return;
+    }
+
     setLoading(true);
     setError("");
     try {
-      const response = await api.post("/tickets/", { number: ticketNumber, clinic: userInfo.clinicId });
+      const response = await axios.post(API_ENDPOINTS.TICKETS, {
+        number: ticketNumber.trim(),
+        clinic: userInfo.clinicId
+      }, axiosConfig);
+
       if (response.data.status === "success") {
         setPatientData(response.data.data.ticket.patient);
+        toast.success('تم جلب بيانات التذكرة بنجاح');
       } else {
-        setError("لم يتم العثور على بيانات للتذكرة المطلوبة.");
+        const errorMsg = 'لم يتم العثور على بيانات للتذكرة المطلوبة';
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err) {
-      setError("حدث خطأ أثناء استرجاع بيانات التذكرة.");
-      console.log(err);
+      const errorMsg = err.response?.data?.message || 'حدث خطأ أثناء استرجاع بيانات التذكرة';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
-  };
+  }, [ticketNumber, userInfo, axiosConfig]);
 
-  const handleGetTickets = async () => {
-    if (!userInfo || !userInfo.clinicId) {
+  const handleGetTickets = useCallback(async () => {
+    if (!userInfo?.clinicId) {
       return;
     }
+
     try {
-      const res = await axios.get(`${BASE_URL}/tickets?status=waiting&clinic=${userInfo.clinicId}`);
+      setLoading(true);
+      const res = await axios.get(
+        `${API_ENDPOINTS.TICKETS}?status=waiting&clinic=${userInfo.clinicId}`,
+        axiosConfig
+      );
       setTickets(res.data.tickets.length);
     } catch (err) {
-      console.log(err);
+      const errorMsg = err.response?.data?.message || 'خطأ في جلب قائمة الانتظار';
+      setError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [userInfo, axiosConfig]);
 
-  const handleNextPatient = async () => {
+  const handleNextPatient = useCallback(async () => {
     if (!userInfo?.clinicId) {
-      toast.error("Clinic ID is missing");
+      toast.error('معرف العيادة غير متوفر');
       return;
     }
 
     try {
-      const res = await axios.get(`${BASE_URL}/tickets/next?clinic=${userInfo.clinicId}`);
+      setLoading(true);
+      const res = await axios.get(
+        `${API_ENDPOINTS.TICKETS}/next?clinic=${userInfo.clinicId}`,
+        axiosConfig
+      );
       setPatientData(res.data.patientData);
       setTicket(res.data.data);
-    } catch (err) {
-      toast.error("لا يوجد مرضى آخرين", {
+      toast.success('تم جلب بيانات المريض التالي', {
         position: "top-right",
         autoClose: 2000
       });
-      console.log(err);
-      setPatientData(null);
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || 'لا يوجد مرضى آخرين';
+      toast.error(errorMsg, {
+        position: "top-right",
+        autoClose: 2000
+      });
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [userInfo, axiosConfig]);
 
   useEffect(() => {
     getUserInfo();
@@ -116,32 +173,46 @@ const Queue = () => {
     }
   }, [userInfo, patientData]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
-    const files = Array.from(pdfFiles);
+    if (!pdfFiles || pdfFiles.length === 0) {
+      toast.error('يرجى إرفاق ملفات PDF للنتائج');
+      return;
+    }
+
+    setLoading(true);
     try {
       const formData = new FormData();
-      files.forEach((file) => {
+      Array.from(pdfFiles).forEach((file) => {
         formData.append("pdfFiles", file);
       });
 
+      await Promise.all([
+        axios.put(`${API_ENDPOINTS.TICKETS}/${ticket._id}`, { status: "completed" }, axiosConfig),
+        axios.put(`${API_ENDPOINTS.PATIENTS}/${patientData._id}`, { status: "completed" }, axiosConfig),
+        axios.put(`${API_ENDPOINTS.TEST_ORDERS}/${testOrders._id}`, formData, {
+          ...axiosConfig,
+          headers: {
+            ...axiosConfig.headers,
+            "Content-Type": "multipart/form-data",
+          },
+        })
+      ]);
 
-      await axios.put(`${BASE_URL}/tickets/${ticket._id}`, { status: "completed" });
-      await axios.put(`${BASE_URL}/patients/${patientData._id}`, { status: "completed" });
-      await axios.put(`${BASE_URL}/test-orders/${testOrders._id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
       toast.success("تمت العملية بنجاح", {
         position: "top-right",
         autoClose: 2000
       });
+      setPdfFiles(null);
       handleNextPatient();
     } catch (error) {
-      console.log(error);
+      const errorMsg = error.response?.data?.message || 'حدث خطأ أثناء رفع الملفات';
+      toast.error(errorMsg);
+      setError(errorMsg);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [pdfFiles, ticket._id, patientData._id, testOrders._id, axiosConfig, handleNextPatient]);
 
   return (
     <div className="w-full flex flex-col gap-6 p-5">
@@ -223,8 +294,18 @@ const Queue = () => {
                   multiple
                   accept="application/pdf"
                   onChange={handleFileChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  disabled={loading}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                 />
+                {pdfFiles && (
+                  <div className="mt-2 space-y-1">
+                    {Array.from(pdfFiles).map((file, index) => (
+                      <div key={index} className="text-sm text-gray-600">
+                        {file.name} ({Math.round(file.size / 1024)}KB)
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               </>
             }
@@ -234,12 +315,11 @@ const Queue = () => {
               }
               {ticket.pdfFilesPath && ticket.pdfFilesPath.length > 0 &&
                 ticket.pdfFilesPath.map((filePath, index) => {
-                const normalizedPath = filePath.replace(/^.*(?=uploads)/, "/").replace(/\\/g, "/");
-
                 return (
                   <div key={index}>
                     <a
-                      href={`${BASE_URL}${normalizedPath}`}
+                      target="_blank"
+                      href={filePath}
                       download
                       className="text-blue-500 underline"
                     >
@@ -251,9 +331,19 @@ const Queue = () => {
             }
               <button
                 onClick={handleSubmit}
-                className="w-full py-2 bg-gradient-to-l from-blue-500 to-green-500 text-white font-semibold rounded duration-300 hover:shadow-xl"
+                disabled={loading || !pdfFiles}
+                className="w-full py-2 bg-gradient-to-l from-blue-500 to-green-500 text-white font-semibold rounded duration-300 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed relative"
               >
-                الكشف التالي
+                {loading ? (
+                  <>
+                    <span className="opacity-0">الكشف التالي</span>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                    </div>
+                  </>
+                ) : (
+                  'الكشف التالي'
+                )}
               </button>
           </div>
         </>

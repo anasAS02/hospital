@@ -6,12 +6,14 @@ import {
   getTestOrderById,
   updateTestOrder,
 } from "./testOrder.controller.js";
-import handleFileUpload from "../../middlewares/upload.middleware.js";
+import { uploadFiles } from "../../middlewares/upload.unified.js";
 
 const router = express.Router();
 
-router.route("/").post(handleFileUpload, createTestOrder).get(getAllTestOrders);
-router.route("/:id").get(getTestOrderById).put(handleFileUpload, updateTestOrder);
+router.post("/", uploadFiles, createTestOrder);
+router.get("/", getAllTestOrders);
+router.get("/:id", getTestOrderById);
+router.put("/:id", uploadFiles, updateTestOrder);
 router.patch("/:id/complete", completeTestOrder);
 
 export default router;
