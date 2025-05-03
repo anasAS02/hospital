@@ -4,7 +4,7 @@ import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { toast } from "react-toastify"; 
 import 'react-toastify/dist/ReactToastify.css'; 
-import { BASE_URL } from "../../../constants/api";
+import { API_ENDPOINTS } from "../../../constants/api";
 
 const Tests = () => {
   const [testTypes, setTestTypes] = useState([]);
@@ -18,7 +18,7 @@ const Tests = () => {
 
   const fetchTestTypes = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/test-types`);
+      const res = await axios.get(`${API_ENDPOINTS.TESTS}`);
       const data = res.data.data;
       setTestTypes(data);
     } catch (err) {
@@ -44,7 +44,7 @@ const Tests = () => {
     e.preventDefault();
     if (isEditing) {
       try {
-        await axios.put(`${BASE_URL}/test-types/${editingTestId}`, testForm);
+        await axios.put(`${API_ENDPOINTS.TESTS}/${editingTestId}`, testForm);
         setIsEditing(false);
         setEditingTestId(null);
         setTestForm({ name: "", price: "" });
@@ -61,7 +61,7 @@ const Tests = () => {
       }
     } else {
       try {
-        await axios.post(`${BASE_URL}/test-types`, testForm);
+        await axios.post(API_ENDPOINTS.TESTS, testForm);
         setTestForm({ name: "", price: "" });
         fetchTestTypes();
         toast.success("تم إضافة بيانات الفحص بنجاح", {
@@ -88,7 +88,7 @@ const Tests = () => {
 
   const handleRemoveTestType = async (id) => {
     try {
-      await axios.delete(`${BASE_URL}/test-types/${id}`);
+      await axios.delete(`${API_ENDPOINTS.TESTS}/${id}`);
       fetchTestTypes();
       toast.success("تم حذف بيانات الفحص بنجاح", {
         position: "top-right",

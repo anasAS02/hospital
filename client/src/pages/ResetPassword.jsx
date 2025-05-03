@@ -3,7 +3,7 @@ import * as Yup from "yup";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import { BASE_URL } from "../constants/api";
+import { API_ENDPOINTS } from "../constants/api";
 import Logo from "../assets/logo.png";
 import { useState } from "react";
 
@@ -27,7 +27,7 @@ const ResetPasswordPage = () => {
 
   const handleRequestCode = async (values) => {
     try {
-      await axios.post(`${BASE_URL}/users/request-reset-code`, {
+      await axios.post(`${API_ENDPOINTS.USERS}/request-reset-code`, {
         email: values.email,
       });
       toast.success("تم إرسال الكود بنجاح إلى البريد الإلكتروني", {
@@ -47,7 +47,7 @@ const ResetPasswordPage = () => {
 
   const handleResetPassword = async (values) => {
     try {
-      await axios.post(`${BASE_URL}/users/reset-password`, {
+      await axios.post(`${API_ENDPOINTS.USERS}/reset-password`, {
         email,
         resetCode: values.code,
         newPassword: values.password,

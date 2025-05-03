@@ -10,7 +10,8 @@ import {
 
 const router = express.Router();
 
-router.route("/").post(createTestType).get(getAllTestTypes);
+router.route("/").post(createTestType);
+router.route("/").get(getAllTestTypes);
 router
   .route("/:id")
   .get(getTestTypeById)

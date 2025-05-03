@@ -51,7 +51,6 @@ export const addPrescription = asyncHandler(async (req, res, next) => {
 
 export const getAllPrescriptions = asyncHandler(async (req, res, next) => {
     const prescriptions = await Pharmacy.find()
-  
     res.status(200).json({
       status: "success",
       data: prescriptions,
@@ -60,7 +59,6 @@ export const getAllPrescriptions = asyncHandler(async (req, res, next) => {
   
   export const getPrescription = asyncHandler(async (req, res, next) => {
     const { prescription_id } = req.params;
-  
     const prescription = await Pharmacy.findById(prescription_id)
       .populate("patient_id", "name")
       .populate("medications", "name price");
@@ -84,6 +82,7 @@ export const getAllPrescriptions = asyncHandler(async (req, res, next) => {
     }
   
     prescription.payment_status = payment_status;
+    prescription.pickup_status = "تم الاستلام";
   
     await prescription.save();
   

@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { BASE_URL } from "../../../constants/api";
+import { API_ENDPOINTS, BASE_URL } from "../../../constants/api";
 
 function Employees() {
   const [clinics, setClinics] = useState([]);
@@ -12,7 +12,7 @@ function Employees() {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get(BASE_URL + '/users');
+      const res = await axios.get(API_ENDPOINTS.USERS);
       const data = res.data.data;
       setUsers(data);
     }catch(err) {
@@ -59,7 +59,7 @@ function Employees() {
 
   const fetchClinics = async () => {
     try {
-      const res = await axios.get(BASE_URL + '/clinics');
+      const res = await axios.get(API_ENDPOINTS.CLINICS);
       const data = res.data.data;
       setClinics(data);
     } catch (error) {

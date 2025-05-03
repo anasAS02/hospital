@@ -72,7 +72,7 @@ const AddPatient = () => {
           });
         }
   
-        await axios.post(`${BASE_URL}/patients/`, formData);
+        await axios.post(API_ENDPOINTS.PATIENTS, formData);
         toast.success("تم حجز الكشف بنجاح", {
           position: "top-right",
           autoClose: 2000,

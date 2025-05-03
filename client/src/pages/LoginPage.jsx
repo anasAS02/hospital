@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useStatus } from "../StatusContext";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { BASE_URL } from "../constants/api";
+import { API_ENDPOINTS } from "../constants/api";
 import Logo from '../assets/logo.png';
 import { Link } from "react-router-dom";
 
@@ -29,7 +29,7 @@ const LoginPage = () => {
     };
     setIsLoading(true);
     try {
-      const response = await axios.post(`${BASE_URL}/auth/login/`, userData);
+      const response = await axios.post(API_ENDPOINTS.LOGIN, userData);
       toast.success("تم تسجيل الدخول بنجاح", {
         position: "top-right",
         autoClose: 2000,
@@ -42,6 +42,7 @@ const LoginPage = () => {
       window.location.pathname = "/dashboard";
     } catch (error) {
       console.log(error);
+      alert('هناك مشكلة في البيانات')
       toast.error("هناك مشكلة في البيانات", {
         position: "top-right",
         autoClose: 2000,

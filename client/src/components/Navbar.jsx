@@ -4,7 +4,7 @@ import { FaSignOutAlt } from 'react-icons/fa';
 import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { BASE_URL } from '../constants/api';
+import { API_ENDPOINTS } from '../constants/api';
 
 const Navbar = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -19,7 +19,7 @@ const Navbar = () => {
   
   const getUserInfo = async () => {
     try {
-      const res = await axios.get(BASE_URL + '/users/info', {
+      const res = await axios.get(`${API_ENDPOINTS.USERS}/info`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -37,10 +37,10 @@ const Navbar = () => {
 
   return (
     <header className="w-full bg-white shadow-md p-3 flex justify-between items-center">
-        <span className='flex items-center gap-2'>
+        <a href="/" className='flex items-center gap-2'>
             <img src={logo} alt="Logo" className="w-[40px]" />
             <p>نظام ادارة الرعاية الصحية</p>
-        </span>
+        </a>
         {
           token &&
           <div className="flex items-center gap-4">

@@ -1,6 +1,5 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import { BASE_URL } from "../../../constants/api";
 import { API_ENDPOINTS } from "../../../constants/api";
 import { useStatus } from '../../../StatusContext';
 import Loading from '../../Loading';
@@ -15,17 +14,25 @@ const HomePage = () => {
   const [ticket, setTicket] = useState(null);
   const [clinics, setClinics] = useState([]);
   const [tickets, setTickets] = useState([]);
+  const [error, setError] = useState(null);
   const [nextPatient, setNextPatient] = useState(null);
 
   const fetchTickets = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const res = await axios.get(`${API_ENDPOINTS.TICKETS}`, {params: {status: 'waiting'}});
-      setTickets(res.data.tickets);
-      const nextWaitingTicket = res.data.tickets.find(t => t.status === 'waiting');
+      const res = await axios.get(`${API_ENDPOINTS.TICKETS}?status=waiting`);
+      const data = res.data.tickets || [];
+      setTickets(data);
+      const nextWaitingTicket = data.find(t => t.status === 'waiting');
       setNextPatient(nextWaitingTicket);
     } catch (err) {
-      console.log(err);
+      console.error('Error fetching tickets:', err);
+      setError('فشل في جلب قائمة التذاكر');
+      toast.error('فشل في جلب قائمة التذاكر', {
+        position: "top-right",
+        autoClose: 2000,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -34,7 +41,7 @@ const HomePage = () => {
   const handleGetTicketInfo = async () => {
     setIsLoading(true)
     try {
-      const res = await axios.post(`${BASE_URL}/tickets/number`, { number: ticketNumber });
+      const res = await axios.post(`${API_ENDPOINTS.TICKETS}/number`, { number: ticketNumber });
       setTicket(res.data.data.ticket);
       toast.success("تم جلب البيانات بنجاح", {
         position: "top-right",
@@ -51,18 +58,22 @@ const HomePage = () => {
   };
 
   const fetchClinics = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
+    setError(null);
     try {
       const res = await axios.get(API_ENDPOINTS.CLINICS);
-      setClinics(res.data.data);
+      const data = res.data.data || [];
+      setClinics(data);
     } catch (err) {
-      console.log(err);
-      toast.error("فشل في تحميل العيادات", {
+      console.error('Error fetching clinics:', err);
+      setError('فشل في جلب قائمة العيادات');
+      toast.error('فشل في جلب قائمة العيادات', {
         position: "top-right",
         autoClose: 2000,
       });
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -82,7 +93,7 @@ const HomePage = () => {
 
   return (
     <div className="p-6 w-full mx-auto flex flex-col justify-center items-center gap-6">
-      {nextPatient && (
+      {nextPatient ? (
         <div className='w-full mb-8 bg-white rounded-xl shadow-lg p-6 border-2 border-green-500'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-3'>
@@ -98,12 +109,12 @@ const HomePage = () => {
             </div>
           </div>
         </div>
-      )}
+      ) : null}
 
       <div className='w-full mb-8'>
         <h2 className='text-2xl font-bold text-gray-800 mb-4 text-right'>إنتظار العيادات</h2>
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {clinics.map((clinic) => (
+          {clinics.length > 0 ? clinics.map((clinic) => (
             <div 
               key={clinic._id} 
               className='bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden'
@@ -123,7 +134,11 @@ const HomePage = () => {
                 </div>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className='col-span-3 text-center py-8'>
+              لا توجد عيادات متاحة حالياً
+            </div>
+          )}
         </div>
       </div>
 
@@ -147,7 +162,7 @@ const HomePage = () => {
             </button>
           </div>
 
-          {ticket && (
+          {ticket ? (
             <div className='mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg'>
               <h3 className='text-xl font-bold text-gray-800 mb-4 text-right'>تفاصيل المريض</h3>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-right'>
@@ -164,7 +179,7 @@ const HomePage = () => {
                 </div>
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

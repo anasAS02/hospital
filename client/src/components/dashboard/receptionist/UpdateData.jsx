@@ -3,12 +3,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { BASE_URL } from "../../../constants/api";
 import { API_ENDPOINTS } from "../../../constants/api";
 
 function UpdateData() {
   const [isEditingMode, setIsEditingMode] = useState(false);
   const [patients, setPatients] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const [patientData, setPatientData] = useState({
     _id: "",
@@ -23,11 +24,20 @@ function UpdateData() {
   });
 
   const fetchPatients = async () => {
-    try{
+    setIsLoading(true);
+    setError(null);
+    try {
       const res = await axios.get(API_ENDPOINTS.PATIENTS);
-      setPatients(res.data.data);
-    }catch (error) {
-      console.log(error)
+      setPatients(res.data.data || []);
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+      setError('فشل في جلب قائمة المرضى');
+      toast.error('فشل في جلب قائمة المرضى', {
+        position: "top-right",
+        autoClose: 2000,
+      });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -38,7 +48,7 @@ function UpdateData() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${BASE_URL}/patients/${patientData._id}`, patientData);
+      await axios.put(`${API_ENDPOINTS.PATIENTS}/${patientData._id}`, patientData);
       toast.success("تم تحديث المريض بنجاح", {
         position: "top-right",
         autoClose: 2000,
@@ -90,7 +100,7 @@ function UpdateData() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${BASE_URL}/patients/${id}`);
+      await axios.delete(`${API_ENDPOINTS.PATIENTS}/${id}`);
       toast.success("تم حذف المريض بنجاح", {
         position: "top-right",
         autoClose: 2000,
@@ -107,6 +117,16 @@ function UpdateData() {
 
   return (
     <div className="p-6 w-full mx-auto flex flex-col justify-center items-center gap-6">
+      {isLoading && (
+        <div className="flex justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      )}
+      {error && (
+        <div className="text-red-500 text-center mb-4">
+          {error}
+        </div>
+      )}
       <form onSubmit={handleSubmit} className={`space-y-6 w-full ${!isEditingMode && "hidden"}`}>
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-600 mb-1">
@@ -237,7 +257,7 @@ function UpdateData() {
             </tr>
           </thead>
           <tbody>
-            {patients.map((patient) => (
+            {patients.length > 0 ? patients.map((patient) => (
               <tr key={patient._id}>
                 <td className="px-4 py-2 border text-center">{patient.name}</td>
                 <td className="px-4 py-2 border text-center">{patient.age}</td>
@@ -258,7 +278,13 @@ function UpdateData() {
                   </button>
                 </td>
               </tr>
-            ))}
+            )) : (
+              <tr>
+                <td colSpan="5" className="text-center py-4">
+                  لا توجد بيانات لعرضها
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

@@ -97,6 +97,7 @@ const Queue = () => {
       }, axiosConfig);
 
       if (response.data.status === "success") {
+        setTicket(response.data.data.ticket);
         setPatientData(response.data.data.ticket.patient);
         toast.success('تم جلب بيانات التذكرة بنجاح');
       } else {
@@ -212,7 +213,7 @@ const Queue = () => {
     } finally {
       setLoading(false);
     }
-  }, [pdfFiles, ticket._id, patientData._id, testOrders._id, axiosConfig, handleNextPatient]);
+  }, [pdfFiles, ticket, patientData, testOrders, axiosConfig, handleNextPatient]);
 
   return (
     <div className="w-full flex flex-col gap-6 p-5">

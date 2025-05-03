@@ -9,7 +9,6 @@ config({ path: join(__dirname, ".env") });
 
 import express from "express";
 import cors from "cors";
-import path from "path";
 
 import dbConnection from "./src/db/dbConnection.js";
 import { globalError } from "./src/middlewares/errorHandller.middleware.js";

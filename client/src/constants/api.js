@@ -14,17 +14,17 @@ export const API_ENDPOINTS = {
   QUEUE_BY_ID: (id) => `${BASE_URL}/queue/${id}`,
   
   // Laboratory
-  TESTS: `${BASE_URL}/tests`,
-  TEST_ORDERS: `${BASE_URL}/testOrder`,
-  TEST_ORDER_BY_ID: (id) => `${BASE_URL}/testOrder/${id}`,
+  TESTS: `${BASE_URL}/test-types`,
+  TEST_ORDERS: `${BASE_URL}/test-orders`,
+  TEST_ORDER_BY_ID: (id) => `${BASE_URL}/test-orders/${id}`,
   
   // Doctor
   MEDICAL_RECORDS: `${BASE_URL}/medicalRecords`,
   MEDICAL_RECORD_BY_ID: (id) => `${BASE_URL}/medicalRecords/${id}`,
   
   // Pharmacy
-  MEDICATIONS: `${BASE_URL}/medication`,
-  PHARMACY: `${BASE_URL}/pharmacy`,
+  MEDICATIONS: `${BASE_URL}/medications`,
+  PHARMACY: `${BASE_URL}/prescriptions`,
   
   // Clinics
   CLINICS: `${BASE_URL}/clinics`,
@@ -32,6 +32,7 @@ export const API_ENDPOINTS = {
   // Users
   USERS: `${BASE_URL}/users`,
   USER_BY_ID: (id) => `${BASE_URL}/users/${id}`,
+  USER_INFO: `${BASE_URL}/users/info`,
   
   // Tickets
   TICKETS: `${BASE_URL}/tickets`,

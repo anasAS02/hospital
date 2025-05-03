@@ -26,7 +26,6 @@ const Queue = () => {
   const [userInfo, setUserInfo] = useState(null);
 
   const token = Cookies.get('token');
-
   const getUserInfo = async () => {
       try {
           const res = await axios.get(API_ENDPOINTS.USERS + '/info', {
@@ -42,7 +41,7 @@ const Queue = () => {
 
   const fetchTestList = async () => {
     try {
-      const res = await axios.get(`${API_ENDPOINTS.TESTS}/types`);
+      const res = await axios.get(`${API_ENDPOINTS.TESTS}`);
       const data = res.data.data;
       setTestList(data);
     }catch (err) {
@@ -67,7 +66,7 @@ const Queue = () => {
     };
 
     try {
-      await axios.post(`${API_ENDPOINTS.PHARMACY}/prescriptions`, updatedMedications);
+      await axios.post(`${API_ENDPOINTS.PHARMACY}`, updatedMedications);
     }catch (err) {
       toast.error("حدث خطأ أثناء إضافة الأدوية.", {
         position: "top-right",
@@ -105,6 +104,7 @@ const Queue = () => {
     try {
       const response = await axios.post(API_ENDPOINTS.TICKETS, { number: ticketNumber, clinic: userInfo.clinicId });
       if (response.data.status === "success") {
+        setTicket(response.data.data.ticket)
         setPatientData(response.data.data.ticket.patient);
       } else {
         setError("لم يتم العثور على بيانات للتذكرة المطلوبة.");

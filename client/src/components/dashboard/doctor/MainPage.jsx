@@ -12,7 +12,7 @@ const MainPage = () => {
 
     const getUserInfo = async () => {
         try {
-            const res = await axios.get(API_ENDPOINTS.USERS, {
+            const res = await axios.get(API_ENDPOINTS.USER_INFO, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -23,7 +23,6 @@ const MainPage = () => {
             console.log(err);
         }
     };
-
     const fetchPatients = async () => {
         try {
             if (userInfo) {

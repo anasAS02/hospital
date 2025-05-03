@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { BASE_URL } from "../../../constants/api";
+import { API_ENDPOINTS, BASE_URL } from "../../../constants/api";
 
 function AddEmployee() {
 
@@ -9,7 +9,7 @@ function AddEmployee() {
 
   const fetchClinics = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/clinics`);
+      const res = await axios.get(API_ENDPOINTS.CLINICS);
       const data = res.data.data;
       setClinics(data);
     } catch (error) {

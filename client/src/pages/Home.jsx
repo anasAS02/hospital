@@ -7,7 +7,6 @@ import Cookies from 'js-cookie';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
-import { BASE_URL } from '../constants/api';
 import { API_ENDPOINTS } from '../constants/api';
 import AddPatient from './AddPatient';
 import { Users, Search, UserPlus, Clock, ChevronRight, ChevronLeft } from 'lucide-react';
@@ -19,7 +18,6 @@ const Home = () => {
   const [clinics, setClinics] = useState([]);
   const [tickets, setTickets] = useState([]);
   const [nextPatient, setNextPatient] = useState(null);
-  const [previewImage, setPreviewImage] = useState(null);
   const [ads, setAds] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
 
@@ -34,7 +32,7 @@ const Home = () => {
   }
   
   const Carousel = () => {
-    if(!ads.length > 0) return null;
+    if (!ads || ads.length === 0) return null;
     const [currentIndex, setCurrentIndex] = useState(0);
   
     const nextSlide = () => {
@@ -46,9 +44,10 @@ const Home = () => {
     };
   
     useEffect(() => {
+      if (!ads || ads.length === 0) return;
       const timer = setInterval(nextSlide, 5000);
       return () => clearInterval(timer);
-    }, [ads.length]);
+    }, [ads]);
   
     return (
       <div className="relative w-full h-[400px] overflow-hidden rounded-xl">
@@ -108,7 +107,7 @@ const Home = () => {
   const fetchTickets = async () => {
     setIsLoading(true);
     try {
-      const res = await axios.get(`${API_ENDPOINTS.TICKETS}`, {params: {status: 'waiting'}});
+      const res = await axios.get(`${API_ENDPOINTS.TICKETS}?status=waiting`);
       setTickets(res.data.tickets);
       const nextWaitingTicket = res.data.tickets.find(t => t.status === 'waiting');
       setNextPatient(nextWaitingTicket);
