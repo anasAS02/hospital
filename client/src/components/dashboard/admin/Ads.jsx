@@ -132,7 +132,7 @@ const Ads = () => {
     }
 
     try {
-      const response = await axios.put(`${BASE_URL}/ads/${editingAd._id}`, formData, {
+      const response = await axios.put(`${API_ENDPOINTS.ADS}/${editingAd._id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`,
