@@ -26,7 +26,7 @@ const Ads = () => {
   const getAds = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${API_ENDPOINTS.ADS}/`, axiosConfig);
+      const response = await axios.get(`${API_ENDPOINTS.ADS}`, axiosConfig);
       setAds(response.data.data);
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'خطأ في جلب الإعلانات';
@@ -74,7 +74,7 @@ const Ads = () => {
     formData.append('status', status);
 
     try {
-      const response = await axios.post(API_ENDPOINTS.ADS + '/add', formData, {
+      const response = await axios.post(API_ENDPOINTS.ADD_AD, formData, {
         ...axiosConfig,
         headers: {
           ...axiosConfig.headers,
@@ -98,7 +98,7 @@ const Ads = () => {
 
   const handleDeleteAd = async (id) => {
     try {
-      await axios.delete(`${BASE_URL}/ads/${id}`, {
+      await axios.delete(`${API_ENDPOINTS.REMOVE_AD}${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -132,7 +132,7 @@ const Ads = () => {
     }
 
     try {
-      const response = await axios.put(`${API_ENDPOINTS.ADS}/${editingAd._id}`, formData, {
+      const response = await axios.put(`${API_ENDPOINTS.UPDATE_AD}${editingAd._id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`,

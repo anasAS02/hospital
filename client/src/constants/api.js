@@ -39,7 +39,10 @@ export const API_ENDPOINTS = {
   TICKET_BY_ID: (id) => `${BASE_URL}/tickets/${id}`,
 
   // Ads
-  ADS: `${BASE_URL}/ads`,
+  ADS: `${BASE_URL}/ads/`,
+  ADD_AD: `${BASE_URL}/ads/add`,
+  UPDATE_AD: `${BASE_URL}/ads/`,
+  REMOVE_AD: `${BASE_URL}/ads/`,
 };
 
 export default API_ENDPOINTS;
