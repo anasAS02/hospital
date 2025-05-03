@@ -40,6 +40,7 @@ export const API_ENDPOINTS = {
 
   // Ads
   ADS: `${BASE_URL}/ads/`,
+  ACTIVE_ADS: `${BASE_URL}/ads/active/`,
   ADD_AD: `${BASE_URL}/ads/add`,
   UPDATE_AD: `${BASE_URL}/ads/`,
   REMOVE_AD: `${BASE_URL}/ads/`,

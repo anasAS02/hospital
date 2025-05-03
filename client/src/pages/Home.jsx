@@ -23,7 +23,7 @@ const Home = () => {
 
   const fetchAds = async() => {
     try {
-      const res = await axios.get(`${API_ENDPOINTS.ADS}/active`);
+      const res = await axios.get(API_ENDPOINTS.ACTIVE_ADS);
       const data = res.data.data;
       setAds(data);
     }catch(err) {
