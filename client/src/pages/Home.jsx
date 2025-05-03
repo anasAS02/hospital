@@ -45,7 +45,7 @@ const Home = () => {
   
     useEffect(() => {
       if (!ads || ads.length === 0) return;
-      const timer = setInterval(nextSlide, 5000);
+      const timer = setInterval(nextSlide, 20000);
       return () => clearInterval(timer);
     }, [ads]);
   
@@ -181,7 +181,7 @@ const Home = () => {
         <div className='w-full p-6 max-w-7xl mx-auto'>
           <Carousel />
           {nextPatient && (
-            <div className='mb-8 bg-white rounded-xl shadow-lg p-6 border-2 border-green-500'>
+            <div className='my-8 bg-white rounded-xl shadow-lg p-6 border-2 border-green-500'>
               <div className='flex items-center justify-between'>
                 <div className='flex items-center gap-3'>
                   <Clock className='w-8 h-8 text-green-500' />
