@@ -12,7 +12,7 @@ const router = Router();
 
 router.get("/active", getActiveAds);  
 router.get("/", getAllAds);       
-router.post("/", uploadImage, addAd);        
+router.post("/add", uploadImage, addAd);        
 
 router.route("/:id")
   .put(uploadImage, updateAd)   

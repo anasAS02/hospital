@@ -74,7 +74,7 @@ const Ads = () => {
     formData.append('status', status);
 
     try {
-      const response = await axios.post(API_ENDPOINTS.ADS, formData, {
+      const response = await axios.post(API_ENDPOINTS.ADS + '/add', formData, {
         ...axiosConfig,
         headers: {
           ...axiosConfig.headers,
@@ -90,6 +90,7 @@ const Ads = () => {
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'خطأ في إضافة الإعلان';
       toast.error(errorMsg);
+      console.log(error)
     } finally {
       setIsLoading(false);
     }
