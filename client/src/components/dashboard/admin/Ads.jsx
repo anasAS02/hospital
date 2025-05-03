@@ -26,7 +26,7 @@ const Ads = () => {
   const getAds = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${API_ENDPOINTS.ADS}/all`, axiosConfig);
+      const response = await axios.get(`${API_ENDPOINTS.ADS}/`, axiosConfig);
       setAds(response.data.data);
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'خطأ في جلب الإعلانات';

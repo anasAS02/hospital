@@ -11,7 +11,7 @@ import { uploadImage } from "../../middlewares/upload.unified.js";
 const router = Router();
 
 router.get("/active", getActiveAds);  
-router.get("/all", getAllAds);       
+router.get("/", getAllAds);       
 router.post("/", uploadImage, addAd);        
 
 router.route("/:id")
