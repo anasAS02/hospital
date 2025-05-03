@@ -5,6 +5,7 @@ import { API_ENDPOINTS } from '../../../constants/api';
 import { Trash2, Edit2, Plus, Image as ImageIcon } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
+import Loading from '../../Loading';
 
 const Ads = () => {
   const [ads, setAds] = useState([]);
@@ -14,7 +15,6 @@ const Ads = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [status, setStatus] = useState('active');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const token = Cookies.get('token');
 
   const axiosConfig = useMemo(() => ({
@@ -25,13 +25,11 @@ const Ads = () => {
 
   const getAds = useCallback(async () => {
     setIsLoading(true);
-    setError(null);
     try {
       const response = await axios.get(`${API_ENDPOINTS.ADS}/all`, axiosConfig);
       setAds(response.data.data);
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'خطأ في جلب الإعلانات';
-      setError(errorMsg);
       toast.error(errorMsg);
     } finally {
       setIsLoading(false);
@@ -156,6 +154,8 @@ const Ads = () => {
     getAds();
   }, []);
 
+  if(isLoading) return <Loading />
+
   return (
     <div className="min-h-screen bg-gray-50 p-8 text-right" dir="rtl">
       <div className="max-w-4xl mx-auto">
@@ -240,7 +240,7 @@ const Ads = () => {
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4">الإعلانات الحالية</h2>
           <div className="grid gap-6 md:grid-cols-2">
-            {ads.map((ad) => (
+            {ads && ads.length > 0 && ads.map((ad) => (
               <div key={ad._id} className="border rounded-lg overflow-hidden">
                 {ad.image && (
                   <div className="aspect-video bg-gray-100">
